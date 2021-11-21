@@ -1,12 +1,20 @@
 import pandas as pd
+import datetime
 
 class Asset:
     def __init__(self, name, path_file):
         self.name = name
         self.asset_data = pd.read_csv(path_file)
-        print(self.asset_data)
+        self.format_date()
         self.start_date = self.asset_data['Date'][0]
         self.end_date = self.asset_data['Date'][len(self.asset_data.index) - 1]
+
+    def parse_date(self, date):
+        dateA = [int(c) for c in date.split("-")]
+        return datetime.datetime(dateA[0], dateA[1], dateA[2])
+
+    def format_date(self):
+        self.asset_data['Date'] = self.asset_data['Date'].apply(self.parse_date)
 
     def get_simple_MA(self, days = 20, position = None):
         if position is None:
@@ -28,7 +36,3 @@ class Asset:
 
         return volumen * self.asset_data['Close'][position]
 
-
-btc = Asset("BTC", "BTC-USD.csv")
-print(btc.get_simple_MA())
-print(btc.convert_to_usd(1))
