@@ -2,14 +2,22 @@ import pandas as pd
 import datetime
 
 class Asset:
-    def __init__(self, name, path_file):
+    # asset_data contains:
+    # Open: open price
+    # High: high price
+    # Low: low price
+    # Close: close price
+    # Date: data date
+    def __init__(self, name, path_file, data_frame = None):
         self.name = name
-        self.asset_data = pd.read_csv(path_file)
+        self.asset_data = pd.read_csv(path_file) if data_frame is None else data_frame
         self.format_date()
         self.start_date = self.asset_data['Date'][0]
         self.end_date = self.asset_data['Date'][len(self.asset_data.index) - 1]
 
     def parse_date(self, date):
+        if(type(date) is not str):
+            return date
         dateA = [int(c) for c in date.split("-")]
         return datetime.datetime(dateA[0], dateA[1], dateA[2])
 
@@ -28,11 +36,4 @@ class Asset:
             position -= 1
 
         return price_sum / days
-
-    def convert_to_usd(self, volumen, position = None):
-        if position is None:
-            position = len(self.asset_data.index) - 1
-        assert(position > 0 and position < len(self.asset_data.index))
-
-        return volumen * self.asset_data['Close'][position]
 
