@@ -52,6 +52,27 @@ class SmartBot(Bot):
     def get_signal_line(self, position = 0):
         return self.get_EMA(self.get_MACD, 9, position, 9)
 
+    # Relative Strength
+    # RS = Avg Gain / Avg Loss
+    def get_RS(self, position, period):
+        if(position < period):
+            return None
+        count = period
+        gain = []
+        loss = []
+        while count > 0:
+            diff = self.assetAB.asset_data['Close'] - self.assetAB.asset_data['Open']
+            if(diff < 0):
+                loss.append(diff)
+            else:
+                gain.append(diff)
+        return (sum(gain) / len(gain)) / (-1 * sum(loss)/ len(loss))
+
+    # Relative Strength Index
+    # RSI = 100 - (100 / (1 + RS))
+    def get_RSI(self, period = 14, position = 0):
+        return 100 - (100 / (1 + self.get_RS(position, period)))
+
     def start_bot(self, position = 0):
         while position < self.count_rows:
            day_prices = self.assetAB.get_day_prices(position)
