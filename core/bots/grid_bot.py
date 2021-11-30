@@ -45,15 +45,6 @@ class GridBot(Bot):
             self.grids[start_grid] = True
             start_grid += 1
 
-    def get_day_prices(self, pos):
-        day_prices = [self.assetAB.asset_data['Open'][pos], self.assetAB.asset_data['Low'][pos],
-                      self.assetAB.asset_data['High'][pos], self.assetAB.asset_data['Close'][pos]]
-        # the price dropped
-        if(day_prices[0] > day_prices[-1]):
-            day_prices[1], day_prices[2] = day_prices[2], day_prices[1]
-
-        return day_prices
-
     def verify_sl_and_tp(self, last_price):
         if(last_price <= self.stop_loss or last_price >= self.take_profit):
             price = self.limit_low
@@ -70,7 +61,7 @@ class GridBot(Bot):
         last_price = self.assetAB.asset_data['Open'][0]
         close_bot = False
         while not close_bot and pos < self.count_rows:
-            day_prices = self.get_day_prices(pos)
+            day_prices = self.assetAB.get_day_prices(pos)
             for price in day_prices:
                 if(price > last_price):
                     floor_grid = self.get_floor_grid(price)

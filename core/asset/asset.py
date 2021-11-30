@@ -24,16 +24,12 @@ class Asset:
     def format_date(self):
         self.asset_data['Date'] = self.asset_data['Date'].apply(self.parse_date)
 
-    def get_simple_MA(self, days = 20, position = None):
-        if position is None:
-            position = len(self.asset_data.index) - 1
-        count = days
-        price_sum = 0
-        close_prices = self.asset_data['Close']
-        while count > 0 and position > 0:
-            price_sum += close_prices[position]
-            count -= 1
-            position -= 1
+    def get_day_prices(self, pos):
+        day_prices = [self.asset_data['Open'][pos], self.asset_data['Low'][pos],
+                      self.asset_data['High'][pos], self.asset_data['Close'][pos]]
+        # the price dropped
+        if(day_prices[0] > day_prices[-1]):
+            day_prices[1], day_prices[2] = day_prices[2], day_prices[1]
 
-        return price_sum / days
+        return day_prices
 

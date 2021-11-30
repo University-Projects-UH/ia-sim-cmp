@@ -1,7 +1,7 @@
 from prettytable import PrettyTable
 
 class Bot:
-    def __init__(self, name, take_profit, stop_loss, investment):
+    def __init__(self, name, stop_loss, take_profit, investment):
         self.name = name
         self.take_profit = take_profit
         self.stop_loss = stop_loss
