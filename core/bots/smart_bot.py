@@ -1,15 +1,9 @@
-from .bot import Bot
-
-class Order:
-    def __init__(self, price, volumen):
-        self.price = price
-        self.volumen = volumen
+from . import Bot
 
 class SmartBot(Bot):
     def __init__(self, name, stop_loss, take_profit, investment, assetAB, stacking = False):
         super().__init__(name, stop_loss, take_profit, investment)
         self.assetAB = assetAB
-        self.opened_orders = []
         self.count_rows = len(assetAB.asset_data.index)
 
     def print_bot_info(self):
@@ -19,10 +13,10 @@ class SmartBot(Bot):
 
     def get_simple_MA(self, days = 20, position = None):
         if position is None:
-            position = len(self.asset_data.index) - 1
+            position = len(self.assetAB.asset_data.index) - 1
         count = days
         price_sum = 0
-        close_prices = self.asset_data['Close']
+        close_prices = self.assetAB.asset_data['Close']
         while count > 0 and position > 0:
             price_sum += close_prices[position]
             count -= 1
@@ -73,7 +67,22 @@ class SmartBot(Bot):
     def get_RSI(self, period = 14, position = 0):
         return 100 - (100 / (1 + self.get_RS(position, period)))
 
+    def close_bot(self, price):
+        for order in self.opened_orders:
+            self.investment += order.volumen * (1 + price - order.price)
+
     def start_bot(self, position = 0):
+        last_day_price = -1
         while position < self.count_rows:
-           day_prices = self.assetAB.get_day_prices(position)
+           day_price = self.assetAB.get_open_price(position)
            position += 1
+           if(last_day_price == -1):
+               pass
+
+           # close bot if it hit the take profit line
+           if(day_price >= self.take_profit):
+               self.close_bot(self.take_profit)
+           # close bot if it fall below the stop loss line
+           if(day_price <= self.stop_loss):
+               self.close_bot(self.stop_loss)
+

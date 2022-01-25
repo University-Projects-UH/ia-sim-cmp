@@ -33,3 +33,9 @@ class Asset:
 
         return day_prices
 
+    def get_open_price(self, pos):
+        return self.asset_data['Open'][pos]
+
+    def get_close_price(self, pos):
+        return self.asset_data['Close'][pos]
+

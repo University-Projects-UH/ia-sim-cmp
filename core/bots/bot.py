@@ -7,6 +7,7 @@ class Bot:
         self.stop_loss = stop_loss
         self.investment = investment
         self.profit = 0
+        self.opened_orders = []
         self.operation_history = []
 
     # price: price at the moment of execute the operation
