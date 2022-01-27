@@ -10,12 +10,8 @@ class Bot:
         self.opened_orders = []
         self.operation_history = []
 
-    # price: price at the moment of execute the operation
-    # operation_type:
-    #    - sell
-    #    - buy
-    def insert_operation(self, time, price, operation_type, volumen, asset):
-        self.operation_history.append([time, price, operation_type, volumen, asset])
+    def append_order_to_history(self, order):
+        self.operation_history.append(order)
 
     def print_bot_info(self):
         print("Name: " + self.name)
@@ -25,8 +21,9 @@ class Bot:
         print("Profit: " + str(self.profit))
 
     def print_operation_history(self):
-        table = PrettyTable(["Time", "Price", "Operation", "Volumen", "Asset"])
-        for row in self.operation_history:
-            table.add_row(row)
+        table = PrettyTable(["Date", "Price", "Volumen", "Asset", "Volumen USD", "Type"])
+        for order in self.operation_history:
+            table.add_row([order.date, order.price, order.volumen, order.name,\
+                           order.price * order.volumen, order.order_type])
         print(table.get_string())
 

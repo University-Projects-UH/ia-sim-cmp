@@ -33,9 +33,28 @@ class Asset:
 
         return day_prices
 
-    def get_open_price(self, pos):
-        return self.asset_data['Open'][pos]
+    # get the row by date with lower bound
+    def get_row_by_date(self, date):
+        if(date < self.start_date):
+            return 0
 
-    def get_close_price(self, pos):
-        return self.asset_data['Close'][pos]
+        dates = self.asset_data['Date']
+        l, r = 0, len(self.asset_data)
+        while(l < r):
+            mid = (l + r) >> 1
+            if(date < dates[mid]):
+                r = mid
+            else:
+                l = mid + 1
+        return l - 1
+
+    def get_open_price_by_index(self, index):
+        return self.asset_data['Open'][index]
+
+    def get_close_price_by_index(self, index):
+        return self.asset_data['Close'][index]
+
+    def get_close_price_by_date(self, date):
+        index_row = self.get_row_by_date(date)
+        return self.get_close_price_by_index(index_row)
 

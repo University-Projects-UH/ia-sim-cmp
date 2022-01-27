@@ -1,6 +1,6 @@
 import pandas as pd
 from .asset import Asset
-from .bots import Bot, GridBot, SmartBot
+from .bots import Bot, GridBot, SmartBot, RebalanceBot
 
 def filter_by_date(data, start_date, end_date):
     new_data = data.loc[data['Date'] >= start_date]
