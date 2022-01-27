@@ -78,7 +78,7 @@ class RebalanceBot(Bot):
         self.append_order_to_history(buy_order)
 
     def rebalance_assets(self, assets_percent, total_value, date):
-        do_not_rebalance = False
+        do_not_rebalance = True
         for i in range(self.assets_count):
             ratio_condition = abs(assets_percent[i]) < self.percent_array[i]
             do_not_rebalance = do_not_rebalance and ratio_condition
@@ -119,6 +119,5 @@ class RebalanceBot(Bot):
                 assets_percent.append(percent)
 
             self.rebalance_assets(assets_percent, sum(assets_values), date)
-            assets_values = [self.get_asset_value(i, date) for i in range(len(self.investment_by_asset))]
 
             date += datetime.timedelta(days = 1)
