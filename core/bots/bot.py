@@ -6,7 +6,6 @@ class Bot:
         self.take_profit = take_profit
         self.stop_loss = stop_loss
         self.investment = investment
-        self.profit = 0
         self.opened_orders = []
         self.operation_history = []
 
@@ -15,10 +14,9 @@ class Bot:
 
     def print_bot_info(self):
         print("Name: " + self.name)
-        print("Investment: " + str(self.investment))
+        print("Investment: " + str(self.investment) + "$")
         print("Take profit: " + str(self.take_profit))
         print("Stop Lost: " + str(self.take_profit))
-        print("Profit: " + str(self.profit))
 
     def print_operation_history(self):
         table = PrettyTable(["Date", "Price", "Volumen", "Asset", "Volumen USD", "Type"])
