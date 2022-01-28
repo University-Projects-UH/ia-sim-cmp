@@ -10,7 +10,7 @@ class RebalanceBot(Bot):
     # for example if the bot has stop lost of 15% and
     # the loss on usdt reach to that percent, the bot will
     # be closet, analogously for take profit
-    def __init__(self, name, stop_loss, take_profit, investment, assets_array, rebalance_ratio=0.2, percent_array=None):
+    def __init__(self, name, stop_loss, take_profit, investment, assets_array, rebalance_ratio=0.02, percent_array=None):
         super().__init__(name, stop_loss, take_profit, investment)
         assert rebalance_ratio >= 0, "Rebalance value has to be at least equal to zero"
         assert len(assets_array) >= 2, "Rebalance bot require at least two assets"
@@ -79,7 +79,7 @@ class RebalanceBot(Bot):
     def rebalance_assets(self, assets_percent, total_value, date):
         do_not_rebalance = True
         for i in range(self.assets_count):
-            ratio_condition = abs(assets_percent[i]) < self.percent_array[i]
+            ratio_condition = abs(assets_percent[i]) < self.rebalance_ratio
             do_not_rebalance = do_not_rebalance and ratio_condition
 
         if(do_not_rebalance):
@@ -127,7 +127,7 @@ class RebalanceBot(Bot):
             self.rebalance_assets(assets_percent, sum(assets_values), date)
 
             date += datetime.timedelta(days = 1)
-        self.print_operation_history()
+        #self.print_operation_history()
         volumen_usd_profit, percent_profit = self.get_profit(date)
         print("Start date: " + str(start_date))
         print("End date: " + str(max_date))
