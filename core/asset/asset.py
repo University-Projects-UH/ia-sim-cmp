@@ -11,6 +11,8 @@ class Asset:
     def __init__(self, name, path_file, data_frame = None):
         self.name = name
         self.asset_data = pd.read_csv(path_file) if data_frame is None else data_frame
+        self.asset_data.dropna(inplace=True)
+        self.asset_data.reset_index(inplace=True)
         self.format_date()
         self.start_date = self.asset_data['Date'][0]
         self.end_date = self.asset_data['Date'][len(self.asset_data.index) - 1]
