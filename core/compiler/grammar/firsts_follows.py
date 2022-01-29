@@ -1,4 +1,4 @@
-from grammar import *
+from grammar import NonTerminal, InitialNonTerminal, Terminal, Production, Epsilon, End
 
 def firsts(productions, terminals, non_terminals):
 
