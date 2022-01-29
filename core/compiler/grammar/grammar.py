@@ -15,7 +15,12 @@ class NonTerminal(Symbol):
     def __init__(self, name):
         super().__init__(name)
 
-        
+
+class InitialNonTerminal(NonTerminal):
+
+    def __init__(self, name):
+        super().__init__(name)
+
 
 class Terminal(Symbol):
 
