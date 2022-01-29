@@ -11,10 +11,9 @@ class RebalanceBot(Bot):
     # the loss on usdt reach to that percent, the bot will
     # be closet, analogously for take profit
     def __init__(self, name, stop_loss, take_profit, investment, assets_array, rebalance_ratio=0.02, percent_array=None):
-        super().__init__(name, stop_loss, take_profit, investment)
+        super().__init__(name, stop_loss, take_profit, investment, assets_array)
         assert rebalance_ratio >= 0, "Rebalance value has to be at least equal to zero"
         assert len(assets_array) >= 2, "Rebalance bot require at least two assets"
-        self.assets_array = assets_array
         self.rebalance_ratio = rebalance_ratio
         self.assets_count = len(self.assets_array)
         self.percent_array = percent_array
@@ -34,20 +33,6 @@ class RebalanceBot(Bot):
         for order in self.investment_by_asset[asset_index]:
             value += order.volumen * price_at_date
         return value
-
-    def get_lower_date(self):
-        low_date = self.assets_array[0].start_date
-        for asset in self.assets_array[1:]:
-            low_date = min(low_date, asset.start_date)
-
-        return low_date
-
-    def get_upper_date(self):
-        upper_date = self.assets_array[0].end_date
-        for asset in self.assets_array[1:]:
-            upper_date = min(upper_date, asset.end_date)
-
-        return upper_date
 
     # total_value is the value of the bot on usd at today
     def asset_sell_percent(self, asset_index, percent, total_value, date):
