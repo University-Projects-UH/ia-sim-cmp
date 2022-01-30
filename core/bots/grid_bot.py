@@ -8,12 +8,12 @@ class GridBot(Bot):
     # the investment represents the quantity of assetB
     # limit_low and limit_high delimit the bot work range
     def __init__(self, name, stop_loss, take_profit, investment, grids, limit_low, limit_high, assets_array):
-        super().__init__(name, take_profit, stop_loss, investment, assets_array)
+        super().__init__(name, stop_loss, take_profit, investment, assets_array)
         assert stop_loss < limit_low, "Stop loss must be less than limit low"
         assert take_profit > limit_high, "Take profit must be greater than limit high"
         assert len(assets_array) == 2 or len(assets_array) == 1, "grid bot works with one or two assets"
-        self.grids_count = grids
-        self.grids_orders = [None] * grids
+        self.grids_count = grids + 1
+        self.grids_orders = [None] * (grids + 1)
         self.limit_low = limit_low
         self.limit_high = limit_high
         self.grid_len = (limit_high - limit_low) / grids
@@ -52,6 +52,7 @@ class GridBot(Bot):
     def initialize_bot(self, date):
         price = self.get_price_at_date(date)
         start_grid = self.get_ceil_grid(price) + 1
+        print(start_grid)
         while (start_grid < len(self.grids_orders)):
             asset_name = self.assets_array[0].name
             assetA_volumen = self.investment_per_grid / price
@@ -89,15 +90,17 @@ class GridBot(Bot):
         low_grid = self.get_ceil_grid(price)
         asset_name = self.assets_array[0].name
         while(high_grid >= low_grid):
+            if(high_grid == self.grids_count - 1 or self.grids_orders[high_grid + 1] != None):
+                high_grid -= 1
+                continue
             price = self.get_price_at_grid(high_grid)
             # the price fall, open buy order
             volumen = self.investment_per_grid / price
             buy_order = Order(date, price, volumen, asset_name)
             self.append_order_to_history(buy_order)
 
-            # open sell order behind the current grid if exist
-            if(high_grid + 1 < self.grids_count):
-                self.grids_orders[high_grid + 1] = buy_order
+            # open sell order behind the current grid
+            self.grids_orders[high_grid + 1] = buy_order
             high_grid -= 1
 
     def price_transition(self, last_price, price, date):
@@ -110,7 +113,7 @@ class GridBot(Bot):
         for i in range(self.grids_count):
             order_opened = self.grids_orders[i]
             if(order_opened is None):
-                pass
+                continue
             grid_price = self.get_price_at_grid(i)
             self.profit += (grid_price - order_opened.price) * order_opened.volumen
 

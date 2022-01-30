@@ -1,4 +1,4 @@
-from . import Bot
+from .bot import Bot
 import datetime
 
 class SmartBot(Bot):

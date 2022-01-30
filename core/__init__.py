@@ -1,3 +1,4 @@
-import pandas as pd
-from .asset import Asset
-from .bots import Bot, GridBot, SmartBot, RebalanceBot
+from .asset.asset import Asset
+from .bots.grid_bot import GridBot
+from .bots.rebalance_bot import RebalanceBot
+from .bots.smart_bot import SmartBot
