@@ -1,26 +1,29 @@
 from .bot import Bot
+from .order import Order
+import datetime
 
 class GridBot(Bot):
     # asset_pair: array with two assets
     # assetA / assetB
     # the investment represents the quantity of assetB
-    def __init__(self, name, stop_loss, take_profit, investment, grids, limit_low, limit_high, assetAB):
-        super().__init__(name, take_profit, stop_loss, investment)
+    # limit_low and limit_high delimit the bot work range
+    def __init__(self, name, stop_loss, take_profit, investment, grids, limit_low, limit_high, assets_array):
+        super().__init__(name, take_profit, stop_loss, investment, assets_array)
         assert stop_loss < limit_low, "Stop loss must be less than limit low"
-        assert take_profit > limit_high, "Take profit must be greater than limit low"
-        self.grids = [None] * grids
+        assert take_profit > limit_high, "Take profit must be greater than limit high"
+        assert len(assets_array) == 2 or len(assets_array) == 1, "grid bot works with one or two assets"
+        self.grids_count = grids
+        self.grids_orders = [None] * grids
         self.limit_low = limit_low
         self.limit_high = limit_high
         self.grid_len = (limit_high - limit_low) / grids
         self.investment_per_grid = investment / grids
-        self.assetAB = assetAB
-        self.count_rows = len(self.assetAB.asset_data.index)
         self.profit_per_grid = self.investment_per_grid * self.grid_len
         self.profit = 0
 
     def print_bot_info(self):
         super().print_bot_info()
-        print("Pair: " + self.assetAB.name)
+        print("Pair: " + " | ".join(self.assets_array))
         print("Limit low: " + str(self.limit_low))
         print("Limit high: " + str(self.limit_high))
 
@@ -38,58 +41,105 @@ class GridBot(Bot):
         diff = (price + self.grid_len) - self.limit_low
         return int(diff // self.grid_len)
 
-    def initialize_bot(self, pos = 0):
-        start_grid = self.get_ceil_grid(self.assetAB.asset_data['Open'][0])
-        self.grid_pointer = start_grid
-        while (start_grid < len(self.grids)):
-            self.grids[start_grid] = True
+    # get how many assets B are needed to buy 1 assetA at a date
+    def get_price_at_date(self, date):
+        assetA_price = self.assets_array[0].get_close_price_by_date(date)
+        if(len(self.assets_array) == 1):
+            return assetA_price
+        assetB_price = self.assets_array[1].get_close_price_by_date(date)
+        return assetA_price / assetB_price
+
+    def initialize_bot(self, date):
+        price = self.get_price_at_date(date)
+        start_grid = self.get_ceil_grid(price) + 1
+        while (start_grid < len(self.grids_orders)):
+            asset_name = self.assets_array[0].name
+            assetA_volumen = self.investment_per_grid / price
+            order = Order(date, price, assetA_volumen, asset_name)
+            self.append_order_to_history(order)
+            self.grids_orders[start_grid] = order
             start_grid += 1
 
-    def get_day_prices(self, pos):
-        day_prices = [self.assetAB.asset_data['Open'][pos], self.assetAB.asset_data['Low'][pos],
-                      self.assetAB.asset_data['High'][pos], self.assetAB.asset_data['Close'][pos]]
-        # the price dropped
-        if(day_prices[0] > day_prices[-1]):
-            day_prices[1], day_prices[2] = day_prices[2], day_prices[1]
+    # check stop loss and take profit
+    def verify_sl_and_tp(self, price):
+        if(price >= self.take_profit):
+            self.close_bot_at_price(self.take_profit)
+        elif(price <= self.stop_loss):
+            self.close_bot_at_price(self.stop_loss)
+        return price <= self.stop_loss or price >= self.take_profit
 
-        return day_prices
+    def get_price_at_grid(self, grid):
+        return self.limit_low + (self.grid_len * grid)
 
-    def verify_sl_and_tp(self, last_price):
-        if(last_price <= self.stop_loss or last_price >= self.take_profit):
-            price = self.limit_low
-            for i in range(len(self.grids)):
-                if(self.grids[i]):
-                    self.profit += self.investment_per_grid * (self.stop_loss - price)
-                price += self.grid_len
-            return True
-        return False
+    def up_transition(self, last_price, price, date):
+        low_grid = self.get_ceil_grid(last_price)
+        high_grid = self.get_floor_grid(price)
+        while(low_grid <= high_grid):
+            if(self.grids_orders[low_grid] != None):
+                price = self.get_price_at_grid(low_grid)
+                order_opened = self.grids_orders[low_grid]
+                self.profit += (price - order_opened.price) * order_opened.volumen
+                sell_order = Order(date, price, order_opened.volumen, order_opened.name, "sell")
+                self.append_order_to_history(sell_order)
+            self.grids_orders[low_grid] = None
+            low_grid += 1
+
+    def down_transition(self, last_price, price, date):
+        high_grid = self.get_floor_grid(last_price)
+        low_grid = self.get_ceil_grid(price)
+        asset_name = self.assets_array[0].name
+        while(high_grid >= low_grid):
+            price = self.get_price_at_grid(high_grid)
+            # the price fall, open buy order
+            volumen = self.investment_per_grid / price
+            buy_order = Order(date, price, volumen, asset_name)
+            self.append_order_to_history(buy_order)
+
+            # open sell order behind the current grid if exist
+            if(high_grid + 1 < self.grids_count):
+                self.grids_orders[high_grid + 1] = buy_order
+            high_grid -= 1
+
+    def price_transition(self, last_price, price, date):
+        if(last_price <= price):
+            self.up_transition(last_price, price, date)
+        else:
+            self.down_transition(last_price, price, date)
+
+    def close_bot_at_price(self, price):
+        for i in range(self.grids_count):
+            order_opened = self.grids_orders[i]
+            if(order_opened is None):
+                pass
+            grid_price = self.get_price_at_grid(i)
+            self.profit += (grid_price - order_opened.price) * order_opened.volumen
 
 
-    def start_bot(self, pos = 0):
-        self.initialize_bot()
-        last_price = self.assetAB.asset_data['Open'][0]
-        close_bot = False
-        while not close_bot and pos < self.count_rows:
-            day_prices = self.get_day_prices(pos)
-            for price in day_prices:
-                if(price > last_price):
-                    floor_grid = self.get_floor_grid(price)
-                    while(self.grid_pointer < floor_grid):
-                        if(self.grids[self.grid_pointer]):
-                            self.profit += self.profit_per_grid
-                            self.grids[self.grid_pointer] = False
-                        self.grid_pointer += 1
-                        self.grids[self.grid_pointer] = True
-                else:
-                    ceil_grid = self.get_ceil_grid(price)
-                    while(self.grid_pointer > ceil_grid):
-                        self.grid_pointer -= 1
-                        self.grids[self.grid_pointer] = True
-                last_price = price
-                close_bot = self.verify_sl_and_tp(last_price)
-                if(close_bot):
-                    break
+    def print_summary(self, start_date, max_date):
+        #self.print_operation_history()
+        print("Start date: " + str(start_date))
+        print("End date: " + str(max_date))
+        percent_profit = (self.profit * 100) / self.investment
+        print("Profit: " + str(self.profit) + " | " + str(percent_profit) + "%")
 
-            pos += 1
-        print(self.profit)
+    def start_bot(self, date = None):
+        if(date is None):
+            date = self.get_lower_date()
+        self.initialize_bot(date)
+        start_date = date
+        max_date = self.get_upper_date()
+        last_price = self.get_price_at_date(date)
+        date += datetime.timedelta(days = 1)
+        while date <= max_date:
+            price_at_date = self.get_price_at_date(date)
+            if(self.verify_sl_and_tp(price_at_date)):
+                break
+
+            self.price_transition(last_price, price_at_date, date)
+            last_price = price_at_date
+
+            date += datetime.timedelta(days = 1)
+
+        self.close_bot_at_price(last_price)
+        self.print_summary(start_date, max_date)
 
