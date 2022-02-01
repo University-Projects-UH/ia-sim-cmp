@@ -1,4 +1,7 @@
 
+from firsts_follows import compute_firsts
+
+
 class Symbol:
     
     def __init__(self, name, grammar):
@@ -281,7 +284,7 @@ class Grammar:
 
         return ans
 
-### Testing the classes implemented above
+### Testing the classes implemented above and the compute_firsts algorithm
 
 # G = Grammar()
 # E = G.add_non_terminal('E', True)
@@ -295,3 +298,9 @@ class Grammar:
 # F %= num | opar + E + cpar
 
 # print(G)
+
+# firsts = compute_firsts(G)
+
+# for term in firsts:
+#     s = "" + str(term) + " : " + str(firsts[term]) 
+#     print(s)
