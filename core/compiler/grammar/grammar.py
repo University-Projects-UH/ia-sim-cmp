@@ -1,7 +1,8 @@
 
+from turtle import left
 from defer import return_value
 from firsts_follows import compute_firsts, compute_follows
-from parser_ll import is_ll1, build_table_parser_ll1
+from parser_ll import is_ll1, build_table_parser_ll1, descending_not_recursive_parser
 
 
 class Symbol:
@@ -205,7 +206,7 @@ class Epsilon(Terminal, Sentence):
         return True
 
 
-class EOF(Symbol):
+class EOF(Terminal):
 
     def __init__(self, grammar):
         super().__init__("$", grammar)
@@ -324,5 +325,11 @@ class Grammar:
 #     s = "" + str(term) + " : " + str(T[term])
 #     print(s)
 
-# print()
-# print(is_ll1(G, T))
+# print("\nIs LL(1): " + str(is_ll1(G, T)))
+
+# parser = descending_not_recursive_parser(G, T)
+# left_parse = parser([num, star, num, star, num, plus, num, star, num, plus, num, plus, num, G.eof])
+
+# print("\n\t LEFT PARSE\n")
+# for x in left_parse:
+#     print(x)
