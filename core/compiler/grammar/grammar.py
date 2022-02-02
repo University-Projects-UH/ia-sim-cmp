@@ -1,6 +1,7 @@
 
 from defer import return_value
 from firsts_follows import compute_firsts, compute_follows
+from parser_ll import is_ll1, build_table_parser_ll1
 
 
 class Symbol:
@@ -315,3 +316,13 @@ class Grammar:
 # for term in follows:
 #     s = "" + str(term) + " : " + str(follows[term]) 
 #     print(s)
+
+# T = build_table_parser_ll1(G, firsts, follows)
+
+# print("\n\t LL1 PARSING TABLE\n")
+# for term in T:
+#     s = "" + str(term) + " : " + str(T[term])
+#     print(s)
+
+# print()
+# print(is_ll1(G, T))
