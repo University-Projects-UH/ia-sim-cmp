@@ -1,5 +1,6 @@
 
-from firsts_follows import compute_firsts
+from defer import return_value
+from firsts_follows import compute_firsts, compute_follows
 
 
 class Symbol:
@@ -195,6 +196,9 @@ class Epsilon(Terminal, Sentence):
     def __add__(self, elem):
         return elem
 
+    def __iter__(self):
+        return iter(())
+
     @property
     def is_epsilon(self):
         return True
@@ -228,7 +232,7 @@ class Grammar:
         if start_non_terminal:
 
             if self.start_non_terminal is None:
-                self.start_non_terminal = start_non_terminal
+                self.start_non_terminal = nt
             
             else:
                 raise Exception("Connat define more than one start non terminal")
@@ -300,7 +304,14 @@ class Grammar:
 # print(G)
 
 # firsts = compute_firsts(G)
+# follows = compute_follows(G, firsts)
 
+# print("\n\t FIRSTS \n")
 # for term in firsts:
 #     s = "" + str(term) + " : " + str(firsts[term]) 
+#     print(s)
+
+# print("\n\t FOLLOWS \n")
+# for term in follows:
+#     s = "" + str(term) + " : " + str(follows[term]) 
 #     print(s)
