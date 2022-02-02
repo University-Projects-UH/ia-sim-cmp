@@ -1,10 +1,4 @@
 
-from turtle import left
-from defer import return_value
-from firsts_follows import compute_firsts, compute_follows
-from parser_ll import is_ll1, build_table_parser_ll1, descending_not_recursive_parser
-
-
 class Symbol:
     
     def __init__(self, name, grammar):
@@ -122,11 +116,17 @@ class Sentence:
 
         TypeError(elem)
 
+    def __eq__(self, other):
+        return self.symbols == other.symbols
+
+    def __hash__(self):
+        return hash(self.symbols)
+
     def __str__(self):
         return ("%s " * len(self.symbols) % tuple(self.symbols)).strip()
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     def __iter__(self):
         return iter(self.symbols)
@@ -176,6 +176,9 @@ class Production:
     def __repr__(self) -> str:
         return "%s -> %s" % (self.left, self.right)
 
+    def __eq__(self, other):
+        return isinstance(other, Production) and self.left == other.left and self.right == other.right
+
     @property
     def is_epsilon(self):
         return self.right.is_epsilon
@@ -201,6 +204,12 @@ class Epsilon(Terminal, Sentence):
     def __iter__(self):
         return iter(())
 
+    def __eq__(self, other):
+        return isinstance(other, (Epsilon,))
+
+    def __hash__(self):
+        return hash("")
+
     @property
     def is_epsilon(self):
         return True
@@ -222,6 +231,7 @@ class Grammar:
         self.start_non_terminal = None
         self.epsilon = Epsilon(self)
         self.eof = EOF(self)
+        self.symbols = { '$' : self.eof}
 
     def add_non_terminal(self, name, start_non_terminal = False):
 
@@ -240,6 +250,7 @@ class Grammar:
                 raise Exception("Connat define more than one start non terminal")
 
         self.non_terminals.append(nt)
+        self.symbols[name] = nt
         return nt
 
     def add_non_terminals(self, names):
@@ -256,6 +267,7 @@ class Grammar:
 
         t = Terminal(name, self)
         self.terminals.append(t)
+        self.symbols[name] = t
         return t
 
     def add_terminals(self, names):
@@ -289,47 +301,11 @@ class Grammar:
             ans += '\n'
 
         return ans
-
-### Testing the classes implemented above and the compute_firsts algorithm
-
-# G = Grammar()
-# E = G.add_non_terminal('E', True)
-# T,F,X,Y = G.add_non_terminals('T F X Y')
-# plus, minus, star, div, opar, cpar, num = G.add_terminals('+ - * / ( ) num')
-
-# E %= T + X
-# X %= plus + T + X | minus + T + X | G.epsilon
-# T %= F + Y
-# Y %= star + F + Y | div + F + Y | G.epsilon
-# F %= num | opar + E + cpar
-
-# print(G)
-
-# firsts = compute_firsts(G)
-# follows = compute_follows(G, firsts)
-
-# print("\n\t FIRSTS \n")
-# for term in firsts:
-#     s = "" + str(term) + " : " + str(firsts[term]) 
-#     print(s)
-
-# print("\n\t FOLLOWS \n")
-# for term in follows:
-#     s = "" + str(term) + " : " + str(follows[term]) 
-#     print(s)
-
-# T = build_table_parser_ll1(G, firsts, follows)
-
-# print("\n\t LL1 PARSING TABLE\n")
-# for term in T:
-#     s = "" + str(term) + " : " + str(T[term])
-#     print(s)
-
-# print("\nIs LL(1): " + str(is_ll1(G, T)))
-
-# parser = descending_not_recursive_parser(G, T)
-# left_parse = parser([num, star, num, star, num, plus, num, star, num, plus, num, plus, num, G.eof])
-
-# print("\n\t LEFT PARSE\n")
-# for x in left_parse:
-#     print(x)
+    
+    
+    def __getitem__(self, name):
+        try:
+            return self.symbols[name]
+        except KeyError:
+            return None
+            

@@ -1,3 +1,4 @@
+from .firsts_follows import compute_firsts, compute_follows
 
 ##################################################################
 
@@ -7,8 +8,6 @@
 # 2- If X -> W, t in terminals, epsilon in First(W) and t in Follow(X)   =>    T[X, t] = X -> W  
 
 ##################################################################
-
-from firsts_follows import compute_firsts, compute_follows
 
 def build_table_parser_ll1(G, firsts, follows):
 
