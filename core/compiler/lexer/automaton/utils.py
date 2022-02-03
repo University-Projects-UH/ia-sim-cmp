@@ -1,4 +1,5 @@
 from .dfa import DFA
+from .automaton import Automaton
 
 # set of states of the NFA to which there is a transition with the input
 # character 'c' from some state of states_array.
@@ -67,3 +68,55 @@ def nfa_to_dfa(automaton):
 
     dfa = DFA(len(node_array), 0, finals_states, new_transitions)
     return dfa
+
+def union_automatas(aut_a, aut_b):
+    aux = aut_a.states + 1
+    new_final_state = aut_b.states + aux
+    transitions = [(0, '', [1, aux])]
+    states = new_final_state + 1
+
+    a_transitions = aut_a.transitions
+    for a_state in a_transitions:
+        for c in a_transitions[a_state]:
+            ends_array = [1 + end_state for end_state in a_transitions[a_state][c]]
+            transitions.append((a_state + 1, c, ends_array))
+
+    b_transitions = aut_b.transitions
+    for b_state in b_transitions:
+        for c in b_transitions[b_state]:
+            ends_array = [aux + end_state for end_state in b_transitions[b_state][c]]
+            transitions.append((a_state + aux, c, ends_array))
+
+    for a_final_state in aut_a.finals_states:
+        transitions.append((a_final_state + 1, '', [new_final_state]))
+
+    for b_final_state in aut_b.finals_states:
+        transitions.append((b_final_state + aux, '', [new_final_state]))
+
+    return Automaton(states, 0, [new_final_state], transitions)
+
+def concat_automatas(aut_a, aut_b):
+    aux = aut_a.states
+    new_final_state = aut_b.states + aux
+    transitions = [(0, '', [1, aux])]
+    states = new_final_state + 1
+
+    a_transitions = aut_a.transitions
+    for a_state in a_transitions:
+        for c in a_transitions[a_state]:
+            ends_array = [end_state for end_state in a_transitions[a_state][c]]
+            transitions.append((a_state, c, ends_array))
+
+    b_transitions = aut_b.transitions
+    for b_state in b_transitions:
+        for c in b_transitions[b_state]:
+            ends_array = [aux + end_state for end_state in b_transitions[b_state][c]]
+            transitions.append((a_state + aux, c, ends_array))
+
+    for a_final_state in aut_a.finals_states:
+        transitions.append((a_final_state, '', [aut_b.start + aux]))
+
+    for b_final_state in aut_b.finals_states:
+        transitions.append((b_final_state + aux, '', [new_final_state]))
+
+    return Automaton(states, 0, [new_final_state], transitions)

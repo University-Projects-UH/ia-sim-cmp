@@ -13,7 +13,9 @@ class Automaton:
                 self.universe.add(c)
             if(self.transitions.__contains__(state) == False):
                 self.transitions[state] = {}
-            self.transitions[state][c] = ends_array
+            if(self.transitions[state].__contains__(c) == False):
+                self.transitions[state][c] = []
+            self.transitions[state][c] += ends_array
 
     def get_ends_array_by_state_c(self, state, c):
         if(state >= self.states):
