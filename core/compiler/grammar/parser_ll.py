@@ -1,4 +1,4 @@
-from .firsts_follows import compute_firsts, compute_follows
+from firsts_follows import compute_firsts, compute_follows
 
 ##################################################################
 
@@ -100,3 +100,54 @@ def descending_not_recursive_parser(G, T= None, firsts = None, follows = None):
         return output
 
     return parser
+
+descending_not_recursive_parser_fixed = descending_not_recursive_parser
+
+def descending_not_recursive_parser(G, M):
+    parser = descending_not_recursive_parser_fixed(G, M)
+    def update(tokens):
+        return parser([t.reg_type for t in tokens])
+    return update
+
+def evaluate_left_parse(left_parse, tokens):
+
+    if not left_parse or not tokens:
+        return
+    
+    left_parse = iter(left_parse)
+    tokens = iter(tokens)
+    result = evaluate(next(left_parse), left_parse, tokens)
+
+    return result
+    
+
+def evaluate(production, left_parse, tokens, inherited_value=None):
+
+    left, right = production
+    attributes = production.attributes
+    
+    synteticed = [None] * (len(right) + 1)
+    inherited = [None] * (len(right) + 1)
+
+    inherited[0] = inherited_value
+
+    for i, symbol in enumerate(right, 1):
+
+        # In case of Terminal syntetice their value writing the token lexeme
+        if symbol.is_terminal:
+            synteticed[i] = next(tokens).reg_exp
+
+        # In case of NonTerminal get the inherited attribute and syntetice call recursively
+        # in the next production
+        else:
+            next_production = next(left_parse)
+            attr = attributes[i]
+            if attr is not None:
+                inherited[i] = attr(inherited, synteticed)
+            synteticed[i] = evaluate(next_production, left_parse, tokens, inherited[i])
+    
+    # Return the results of the computed attributes
+    attr = attributes[0]
+    if attr is None:
+        return None
+    return attr(inherited, synteticed)
