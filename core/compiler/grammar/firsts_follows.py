@@ -1,6 +1,6 @@
 
 from itertools import islice
-from .utils import ContainerSet
+from utils import ContainerSet
 
 ##################################################################
 

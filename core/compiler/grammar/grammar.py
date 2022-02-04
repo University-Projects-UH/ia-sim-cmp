@@ -47,6 +47,17 @@ class NonTerminal(Symbol):
             self.grammar.add_production(p)
             return self
 
+        # Is a tuple if we define Attributed grammars
+        if isinstance(elem, tuple):
+
+            if isinstance(elem[0], Symbol) or isinstance(elem[0], Sentence):
+                p = AttributedProduction(self, elem[0], elem[1:])
+            else:
+                raise Exception("Error defining an AttributedProduction")
+
+            self.grammar.add_production(p)
+            return self
+
         if isinstance(elem, Symbol):
 
             p = Production(self, Sentence(elem))
@@ -184,6 +195,20 @@ class Production:
         return self.right.is_epsilon
 
 
+class AttributedProduction(Production):
+
+    def __init__(self, non_terminal, sentence, attributes):
+
+        if not isinstance(sentence, Sentence) and isinstance(sentence, Symbol):
+            sentence = Sentence(sentence)
+        
+        super().__init__(non_terminal, sentence)
+        self.attributes = attributes
+
+    def __iter__(self):
+        yield self.left
+        yield self.right
+
 class Epsilon(Terminal, Sentence):
 
     def __init__(self, grammar):
@@ -308,4 +333,3 @@ class Grammar:
             return self.symbols[name]
         except KeyError:
             return None
-            
