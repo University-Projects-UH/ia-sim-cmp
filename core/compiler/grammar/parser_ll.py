@@ -1,11 +1,11 @@
-from firsts_follows import compute_firsts, compute_follows
+from .firsts_follows import compute_firsts, compute_follows
 
 ##################################################################
 
 # Rules:
 
 # 1- If X -> W, t in Terminals and t in First(W)    =>    T[X, t] = X -> W
-# 2- If X -> W, t in terminals, epsilon in First(W) and t in Follow(X)   =>    T[X, t] = X -> W  
+# 2- If X -> W, t in terminals, epsilon in First(W) and t in Follow(X)   =>    T[X, t] = X -> W
 
 ##################################################################
 
@@ -20,7 +20,7 @@ def build_table_parser_ll1(G, firsts, follows):
 
         # Rule 1
         for t in firsts[W]:
-            
+
             try:
                 T[X, t].append(production)
             except KeyError:
@@ -28,7 +28,7 @@ def build_table_parser_ll1(G, firsts, follows):
 
         # Rule 2
         if firsts[W].contains_epsilon:
-            
+
             for t in follows[X]:
                 try:
                     T[X, t].append(production)
@@ -38,7 +38,7 @@ def build_table_parser_ll1(G, firsts, follows):
     return T
 
 def is_ll1(G, T = None):
-    
+
     if not T:
 
         firsts = compute_firsts(G)
@@ -53,7 +53,7 @@ def is_ll1(G, T = None):
 
     return True
 
-def descending_not_recursive_parser(G, T= None, firsts = None, follows = None):
+def non_recursive_descending_parser(G, T= None, firsts = None, follows = None):
 
     if T is None:
 
@@ -87,7 +87,7 @@ def descending_not_recursive_parser(G, T= None, firsts = None, follows = None):
 
                 if top == G.eof:
                     break
-                
+
                 cursor += 1
 
             else:
@@ -101,10 +101,9 @@ def descending_not_recursive_parser(G, T= None, firsts = None, follows = None):
 
     return parser
 
-descending_not_recursive_parser_fixed = descending_not_recursive_parser
 
-def descending_not_recursive_parser(G, M):
-    parser = descending_not_recursive_parser_fixed(G, M)
+def non_recursive_descending_parser_fixed(G, M):
+    parser = non_recursive_descending_parser(G, M)
     def update(tokens):
         return parser([t.reg_type for t in tokens])
     return update
@@ -113,19 +112,19 @@ def evaluate_left_parse(left_parse, tokens):
 
     if not left_parse or not tokens:
         return
-    
+
     left_parse = iter(left_parse)
     tokens = iter(tokens)
     result = evaluate(next(left_parse), left_parse, tokens)
 
     return result
-    
+
 
 def evaluate(production, left_parse, tokens, inherited_value=None):
 
-    left, right = production
+    _, right = production
     attributes = production.attributes
-    
+
     synteticed = [None] * (len(right) + 1)
     inherited = [None] * (len(right) + 1)
 
@@ -145,7 +144,7 @@ def evaluate(production, left_parse, tokens, inherited_value=None):
             if attr is not None:
                 inherited[i] = attr(inherited, synteticed)
             synteticed[i] = evaluate(next_production, left_parse, tokens, inherited[i])
-    
+
     # Return the results of the computed attributes
     attr = attributes[0]
     if attr is None:
