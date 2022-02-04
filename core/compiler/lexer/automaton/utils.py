@@ -120,3 +120,18 @@ def concat_automatas(aut_a, aut_b):
         transitions.append((b_final_state + aux, '', [new_final_state]))
 
     return Automaton(states, 0, [new_final_state], transitions)
+
+def closure_automaton(aut):
+    new_final_state = aut.states + 1
+    transitions = [(0, '', [new_final_state, aut.start + 1])]
+    states = new_final_state + 1
+
+    for state in aut.transitions:
+        for c in aut.transitions[state]:
+            ends_array = [end_state + 1 for end_state in aut.transitions[state][c]]
+            transitions.append((state + 1, c, ends_array))
+
+    for final_state in aut.finals_states:
+        transitions.append((final_state + 1, '', [new_final_state]))
+
+    return Automaton(states, 0, [new_final_state], transitions)
