@@ -9,7 +9,7 @@ class RebalanceBot(Bot):
     # stop lost and take profit by ratio
     # for example if the bot has stop lost of 15% and
     # the loss on usdt reach to that percent, the bot will
-    # be closet, analogously for take profit
+    # be closed, analogously for take profit
     def __init__(self, name, stop_loss, take_profit, investment, assets_array, rebalance_ratio=0.02, percent_array=None):
         super().__init__(name, stop_loss, take_profit, investment, assets_array)
         assert rebalance_ratio >= 0, "Rebalance value has to be at least equal to zero"
@@ -59,12 +59,12 @@ class RebalanceBot(Bot):
         price_at_date = self.assets_array[asset_index].get_close_price_by_date(date)
         buy_order = Order(date, price_at_date, volumen_to_buy / price_at_date, asset_name)
         self.investment_by_asset[asset_index].append(buy_order)
-        self.append_order_to_history(buy_order)
+        self.append_order_to_history(Order(date, price_at_date, volumen_to_buy / price_at_date, asset_name))
 
     def rebalance_assets(self, assets_percent, total_value, date):
         do_not_rebalance = True
         for i in range(self.assets_count):
-            ratio_condition = abs(assets_percent[i]) < self.rebalance_ratio
+            ratio_condition = abs(assets_percent[i]) + EPS < self.rebalance_ratio
             do_not_rebalance = do_not_rebalance and ratio_condition
 
         if(do_not_rebalance):
@@ -83,13 +83,13 @@ class RebalanceBot(Bot):
     def start_bot(self, date = None):
         if(date is None):
             date = self.get_lower_date()
-        self.print_bot_info()
+
         self.investment_by_asset = []
         for asset in self.assets_array:
             price_at_date = asset.get_close_price_by_date(date)
             volumen = (self.investment / self.assets_count) / price_at_date
             initial_order = Order(date, price_at_date, volumen, asset.name)
-            self.append_order_to_history(initial_order)
+            self.append_order_to_history(Order(date, price_at_date, volumen, asset.name))
             self.investment_by_asset.append([initial_order])
 
         start_date = date
