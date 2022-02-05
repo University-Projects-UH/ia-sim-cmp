@@ -16,3 +16,6 @@ from .compiler.lexer.regex import Regex
 from .compiler.lexer.automaton.automaton import Automaton
 from .compiler.lexer.automaton.utils import union_automatas, closure_automaton, concat_automatas, nfa_to_dfa, DFA
 
+# ast related
+from .compiler.lexer.ast import SymbolNode, ClosureNode
+

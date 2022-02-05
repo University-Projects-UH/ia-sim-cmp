@@ -1,6 +1,6 @@
 from .token import Token
 from core import Grammar
-from core import non_recursive_descending_parser, evaluate_left_parse
+from core import non_recursive_descending_parser_fixed, evaluate_left_parse
 from .ast import UnionNode, ConcatNode, SymbolNode, EpsilonNode, ClosureNode
 from .automaton.utils import nfa_to_dfa
 
@@ -33,14 +33,16 @@ def build_grammar():
     return G
 
 class Regex:
-    def __init__(self, regex):
+    def __init__(self, regex, skip_spaces = False):
         self.regex = regex
-        self.automaton = self.build_automaton(regex)
+        self.automaton = self.build_automaton(regex, skip_spaces)
 
-    def regex_tokenizer(self, text, G):
+    def regex_tokenizer(self, text, G, skip_spaces):
         tokens = []
         regex_tokens = {symbol: Token(symbol, G[symbol]) for symbol in ['|', '^', '[', ']', 'ε']}
         for c in text:
+            if(c == " " and skip_spaces):
+                continue
             if(regex_tokens.__contains__(c)):
                 tokens.append(regex_tokens[c])
             else:
@@ -49,11 +51,12 @@ class Regex:
         tokens.append(Token('$', G.eof))
         return tokens
 
-    def build_automaton(self, regex):
+    def build_automaton(self, regex, skip_spaces):
         G = build_grammar()
-        tokens = self.regex_tokenizer(regex, G)
-        parser = non_recursive_descending_parser(G)
+        tokens = self.regex_tokenizer(regex, G, skip_spaces)
+        parser = non_recursive_descending_parser_fixed(G)
         left_parse = parser(tokens)
         ast = evaluate_left_parse(left_parse, tokens)
-        dfa = nfa_to_dfa(ast.evaluate())
+        automaton = ast.evaluate()
+        dfa = nfa_to_dfa(automaton)
         return dfa

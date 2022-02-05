@@ -21,13 +21,12 @@ class Lexer:
         return regexs_aut
 
     def _build_automaton(self):
-        aut_result = self.regexs_aut
+        aut_result = self.regexs_aut[0]
         aut_count = len(self.regexs_aut)
         for i in range(1, aut_count):
             aut = self.regexs_aut[i]
             aut_result = union_automatas(aut_result, aut)
         return nfa_to_dfa(aut_result)
-
 
     def _walk(self, string):
         aut = self.automaton
@@ -49,12 +48,14 @@ class Lexer:
         aut = self.automaton
         while text:
             final_state, lex = self._walk(text)
+            if(final_state == None):
+                break
             assert final_state != None, "The text does not match with the defined gramatic"
 
             assert len(lex) != 0, 'Error'
 
             text = text[len(lex):]
-            yield lex, aut.get_tag(final_state)
+            yield lex, aut.get_tag(final_state)[1]
 
         yield '$', self.eof
 
