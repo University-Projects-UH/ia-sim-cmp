@@ -32,7 +32,7 @@ class Automaton:
 
     def put_tag(self, state, tag):
         if(self.tags[state] is None):
-            self.finals_states[state] = tag
+            self.tags[state] = tag
         elif(self.tags[state][0] > tag[0]):
             self.tags[state] = tag
 

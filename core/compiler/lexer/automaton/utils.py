@@ -112,7 +112,7 @@ def union_automatas(aut_a, aut_b):
 def concat_automatas(aut_a, aut_b):
     aux = aut_a.states
     new_final_state = aut_b.states + aux
-    transitions = [(0, '', [1, aux])]
+    transitions = []
     states = new_final_state + 1
 
     a_transitions = aut_a.transitions
@@ -125,10 +125,10 @@ def concat_automatas(aut_a, aut_b):
     for b_state in b_transitions:
         for c in b_transitions[b_state]:
             ends_array = [aux + end_state for end_state in b_transitions[b_state][c]]
-            transitions.append((a_state + aux, c, ends_array))
+            transitions.append((b_state + aux, c, ends_array))
 
     for a_final_state in aut_a.finals_states:
-        transitions.append((a_final_state, '', [aut_b.start + aux]))
+        transitions.append((a_final_state, '', [aut_b.start_state + aux]))
 
     for b_final_state in aut_b.finals_states:
         transitions.append((b_final_state + aux, '', [new_final_state]))
@@ -145,7 +145,7 @@ def concat_automatas(aut_a, aut_b):
 
 def closure_automaton(aut):
     new_final_state = aut.states + 1
-    transitions = [(0, '', [new_final_state, aut.start + 1])]
+    transitions = [(0, '', [new_final_state, aut.start_state + 1])]
     states = new_final_state + 1
 
     for state in aut.transitions:
