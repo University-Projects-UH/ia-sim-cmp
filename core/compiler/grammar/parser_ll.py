@@ -102,7 +102,7 @@ def non_recursive_descending_parser(G, T= None, firsts = None, follows = None):
     return parser
 
 
-def non_recursive_descending_parser_fixed(G, M):
+def non_recursive_descending_parser_fixed(G, M = None):
     parser = non_recursive_descending_parser(G, M)
     def update(tokens):
         return parser([t.reg_type for t in tokens])
