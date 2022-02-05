@@ -67,6 +67,12 @@ def nfa_to_dfa(automaton):
             finals_states.append(node.id)
 
     dfa = DFA(len(node_array), 0, finals_states, new_transitions)
+    # update tags
+    for node in node_array:
+        for state in node.states:
+            tag = automaton.get_tag(state)
+            if(tag):
+                dfa.put_tag(node.id, tag)
     return dfa
 
 def union_automatas(aut_a, aut_b):
@@ -93,7 +99,15 @@ def union_automatas(aut_a, aut_b):
     for b_final_state in aut_b.finals_states:
         transitions.append((b_final_state + aux, '', [new_final_state]))
 
-    return Automaton(states, 0, [new_final_state], transitions)
+    new_aut = Automaton(states, 0, [new_final_state], transitions)
+    # copy tags
+    for i in range(aut_a.states):
+        new_aut.put_tag(i + 1, aut_a.tags[i])
+
+    for i in range(aut_b.states):
+        new_aut.put_tag(i + aux, aut_b.tags[i])
+
+    return new_aut
 
 def concat_automatas(aut_a, aut_b):
     aux = aut_a.states
@@ -119,7 +133,15 @@ def concat_automatas(aut_a, aut_b):
     for b_final_state in aut_b.finals_states:
         transitions.append((b_final_state + aux, '', [new_final_state]))
 
-    return Automaton(states, 0, [new_final_state], transitions)
+    new_aut = Automaton(states, 0, [new_final_state], transitions)
+    # copy tags
+    for i in range(aut_a.states):
+        new_aut.put_tag(i, aut_a.tags[i])
+
+    for i in range(aut_b.states):
+        new_aut.put_tag(i + aux, aut_b.tags[i])
+
+    return new_aut
 
 def closure_automaton(aut):
     new_final_state = aut.states + 1
@@ -134,4 +156,9 @@ def closure_automaton(aut):
     for final_state in aut.finals_states:
         transitions.append((final_state + 1, '', [new_final_state]))
 
-    return Automaton(states, 0, [new_final_state], transitions)
+    new_aut = Automaton(states, 0, [new_final_state], transitions)
+    # copy tags
+    for i in range(aut.states):
+        new_aut.put_tag(i, aut.tags[i])
+
+    return new_aut

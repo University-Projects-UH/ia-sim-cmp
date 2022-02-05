@@ -1,6 +1,5 @@
-
 from itertools import islice
-from utils import ContainerSet
+from .utils import ContainerSet
 
 ##################################################################
 
@@ -69,7 +68,7 @@ def compute_firsts(G):
 
             change = first_alpha.hard_update(local_first) or change
             change = first_X.hard_update(local_first) or change
-    
+
     return firsts
 
 
@@ -79,10 +78,10 @@ def compute_firsts(G):
 
 # 1- $ in Follow(S)
 # 2- epsilon not in Follow
-# 3- If X -> WAZ where W and Z are orational forms, and A is NonTerminal  
+# 3- If X -> WAZ where W and Z are orational forms, and A is NonTerminal
 #    =>     (First(X) - {epsilon}) in Follow(A)
 # 4- If X -> WAZ where W and Z are orational forms, and A is NonTerminal
-#    Follow(X) in Follow(A)   
+#    Follow(X) in Follow(A)
 
 ##################################################################
 
@@ -95,7 +94,7 @@ def compute_follows(G, firsts):
 
     for non_terminal in G.non_terminals:
         follows[non_terminal] = ContainerSet()
-    
+
     # Rule 1
     follows[G.start_non_terminal] = ContainerSet(G.eof)
 
@@ -124,5 +123,5 @@ def compute_follows(G, firsts):
                     change = follows[A].update(Z_first) or change
                     if Z_first.contains_epsilon:
                         change = follows[A].update(follows_X) or change
-        
+
     return follows

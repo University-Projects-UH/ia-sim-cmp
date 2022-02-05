@@ -4,6 +4,7 @@ class Automaton:
     # c is the transition character and endi belongs to ends array
     def __init__(self, states, start_state, finals_states, transitions):
         self.states = states
+        self.tags = [None] * states
         self.start_state = start_state
         self.finals_states = finals_states
         self.transitions = {}
@@ -28,3 +29,15 @@ class Automaton:
 
     def get_epsilon_transitions(self, state):
         return self.get_ends_array_by_state_c(state, "")
+
+    def put_tag(self, state, tag):
+        if(self.tags[state] is None):
+            self.finals_states[state] = tag
+        elif(self.tags[state][0] > tag[0]):
+            self.tags[state] = tag
+
+    def get_tag(self, state):
+        return self.tags[state]
+
+    def is_final(self, state):
+        return state in self.finals_states
