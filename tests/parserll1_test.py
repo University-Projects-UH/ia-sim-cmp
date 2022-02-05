@@ -1,6 +1,6 @@
 from core import Grammar, Sentence, Production
 from core import compute_firsts, compute_follows
-from core import descending_not_recursive_parser, build_table_parser_ll1, is_ll1
+from core import non_recursive_descending_parser, build_table_parser_ll1, is_ll1
 from core import ContainerSet
 
 def test_answer():
@@ -84,7 +84,7 @@ def test_answer():
     follows = compute_follows(G, firsts)
     table = build_table_parser_ll1(G, firsts, follows)
 
-    parser = descending_not_recursive_parser(G, table)
+    parser = non_recursive_descending_parser(G, table)
     left_parse = parser([num, star, opar, num, plus, num, cpar, G.eof])
 
     true_parse = [

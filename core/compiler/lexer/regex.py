@@ -1,6 +1,6 @@
 from .token import Token
 from core import Grammar
-from core import non_recursive_descending_parser_fixed, evaluate_left_parse
+from core import non_recursive_descending_parser, evaluate_left_parse
 from .ast import UnionNode, ConcatNode, SymbolNode, EpsilonNode, ClosureNode
 from .automaton.utils import nfa_to_dfa
 
@@ -52,7 +52,7 @@ class Regex:
     def build_automaton(self, regex):
         G = build_grammar()
         tokens = self.regex_tokenizer(regex, G)
-        parser = non_recursive_descending_parser_fixed(G)
+        parser = non_recursive_descending_parser(G)
         left_parse = parser(tokens)
         ast = evaluate_left_parse(left_parse, tokens)
         dfa = nfa_to_dfa(ast.evaluate())
