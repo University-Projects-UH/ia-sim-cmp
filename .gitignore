@@ -6,3 +6,8 @@ __pycache__/
 
 *.csv
 testing.py
+
+.vim/
+pip3free.sh
+
+env/

@@ -60,3 +60,7 @@ class Asset:
         index_row = self.get_row_by_date(date)
         return self.get_close_price_by_index(index_row)
 
+    def get_open_price_by_date(self, date):
+        index_row = self.get_row_by_date(date)
+        return self.get_open_price_by_index(index_row)
+
