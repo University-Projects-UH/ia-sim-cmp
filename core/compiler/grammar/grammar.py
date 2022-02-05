@@ -333,3 +333,49 @@ class Grammar:
             return self.symbols[name]
         except KeyError:
             return None
+
+    def copy(self):
+
+        G = Grammar()
+        G.terminals = self.terminals.copy()
+        G.non_terminals = self.non_terminals.copy()
+        G.productions = self.productions.copy()
+        G.start_non_terminal = self.start_non_terminal
+        G.eof = self.eof
+        G.epsilon = self.epsilon
+        G.symbols = self.symbols.copy()
+        return G
+
+    @property
+    def is_augmented_grammar(self):
+        
+        count = 0
+
+        for left, _ in self.productions:
+
+            if self.start_non_terminal == left:
+                count += 1
+
+            if count > 1:
+                return False
+
+        return True
+
+    def AugmentedGrammar(self):
+
+        if not self.is_augmented_grammar:
+
+            G = self.copy()
+            S = G.start_non_terminal
+            G.start_non_terminal = None
+            SP = G.add_non_terminal('S\'', True)
+
+            if isinstance(S.productions[0], AttributedProduction):
+                SP %= S + G.epsilon, lambda x : x
+
+            else:
+                SP %= S + G.epsilon
+
+            return G
+        
+        return self.copy()
