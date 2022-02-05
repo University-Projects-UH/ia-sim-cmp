@@ -45,6 +45,18 @@ def test_transform_nfa_to_dfa():
     assert dfa.recognize('bdddd')
 
 def test_automatas_union():
+
+    aut1 = Automaton(2, 0, [1], [(0, '1', [1])])
+    aut2 = Automaton(2, 0, [1], [(0, '2', [1])])
+    aut3 = Automaton(2, 0, [1], [(0, '3', [1])])
+
+    un = union_automatas(aut1, aut2)
+    un = union_automatas(un, aut3)
+    dfa = nfa_to_dfa(un)
+    assert dfa.recognize("1")
+    assert dfa.recognize("2")
+    assert dfa.recognize("3")
+
     automaton = DFA(2, 0, [1], transitions=[
         (0, 'a', [0]),
         (0, 'b', [1]),
