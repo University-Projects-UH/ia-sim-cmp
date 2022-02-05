@@ -91,7 +91,7 @@ def union_automatas(aut_a, aut_b):
     for b_state in b_transitions:
         for c in b_transitions[b_state]:
             ends_array = [aux + end_state for end_state in b_transitions[b_state][c]]
-            transitions.append((a_state + aux, c, ends_array))
+            transitions.append((b_state + aux, c, ends_array))
 
     for a_final_state in aut_a.finals_states:
         transitions.append((a_final_state + 1, '', [new_final_state]))
@@ -155,6 +155,7 @@ def closure_automaton(aut):
 
     for final_state in aut.finals_states:
         transitions.append((final_state + 1, '', [new_final_state]))
+        transitions.append((final_state + 1, '', [aut.start_state + 1]))
 
     new_aut = Automaton(states, 0, [new_final_state], transitions)
     # copy tags
