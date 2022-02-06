@@ -145,6 +145,9 @@ class Sentence:
     def __len__(self):
         return len(self.symbols)
 
+    def __getitem__(self, index):
+        return self.symbols[index]
+
     @property
     def is_epsilon(self):
         return False
@@ -180,6 +183,10 @@ class Production:
     def __init__(self, non_terminal, sentence) -> None:
         self.left = non_terminal
         self.right = sentence
+
+    def __iter__(self):
+        yield self.left
+        yield self.right
 
     def __str__(self) -> str:
         return "%s := %s" % (self.left, self.right)

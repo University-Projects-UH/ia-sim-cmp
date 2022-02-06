@@ -10,9 +10,9 @@ class ShiftReduceParser:
         self.grammar = grammar
         self.action_table = {}
         self.goto_table = {}
-        self.build_table()
+        self.build_parsing_table()
 
-    def build_table(self):
+    def build_parsing_table(self):
         raise NotImplementedError()
 
     def __call__(self, tokens):

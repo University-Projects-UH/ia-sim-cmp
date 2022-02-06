@@ -41,13 +41,13 @@ def build_LR0_automaton(G):
 
     aut = Automaton(states, 0, range(states), aut_transitions)
     for state, item in visited.items():
-        aut.put_item(state, item)
+        aut.put_items(item, [state])
 
     return aut
 
 class SLR1Parser(ShiftReduceParser):
 
-    def _build_parsing_table(self):
+    def build_parsing_table(self):
         G = self.grammar.AugmentedGrammar()
         firsts = compute_firsts(G)
         follows = compute_follows(G, firsts)

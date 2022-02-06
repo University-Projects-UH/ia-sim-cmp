@@ -12,6 +12,9 @@ class Item:
         self.production = production
         self.position = position
 
+    def __str__(self):
+        return str(self.production) + " pos: " + str(self.position)
+
     # Return the next possible item
     def NextItem(self):
 
@@ -30,6 +33,6 @@ class Item:
     def NextSymbol(self):
         
         if self.position < len(self.production.right):
-            self.production.right[self.position]
+            return self.production.right[self.position]
         
         return None
