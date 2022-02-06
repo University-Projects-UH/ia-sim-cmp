@@ -23,8 +23,8 @@ def build_LR0_automaton(G):
 
         next_item = current_item.NextItem()
         if next_item not in visited.keys():
-            states += 1
             visited[next_item] = states
+            states += 1
             stack.append(next_item)
 
         next_symbol = current_item.NextSymbol
@@ -34,14 +34,14 @@ def build_LR0_automaton(G):
             if next_symbol == prod.left:
                 item = Item(prod, 0)
                 if item not in visited.keys():
-                    states += 1
                     visited[item] = states
+                    states += 1
                     stack.append(item)
-                aut_transitions.append((current_state, '', visited[item]))
+                aut_transitions.append((current_state, '', [visited[item]]))
 
     aut = Automaton(states, 0, range(states), aut_transitions)
-    for state, item in visited.items():
-        aut.put_items(item, [state])
+    for item, state in visited.items():
+        aut.put_items(state, [item])
 
     return aut
 
@@ -66,7 +66,7 @@ class SLR1Parser(ShiftReduceParser):
                 else:
                     next_symbol = item.NextSymbol
                     key = (state, next_symbol)
-                    next_state = aut.move_from(state, next_symbol)
+                    next_state = aut.move_from(state, next_symbol.name)
                     if next_symbol.is_terminal:
                         self._register(self.action_table, key, (SLR1Parser.SHIFT, next_state))
                     else:

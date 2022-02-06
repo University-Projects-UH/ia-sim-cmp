@@ -22,6 +22,14 @@ class Item:
             return Item(self.production, self.position + 1)
 
         return None
+    def __eq__(self, other):
+        return (
+            (self.position == other.position) and
+            (self.production == other.production)
+        )
+
+    def __hash__(self):
+        return hash((self.production,self.position))
 
     # Return True if the entire production was viewed
     @property
@@ -31,8 +39,8 @@ class Item:
     # Return the next symbol (expected for the next token)
     @property
     def NextSymbol(self):
-        
+
         if self.position < len(self.production.right):
             return self.production.right[self.position]
-        
+
         return None

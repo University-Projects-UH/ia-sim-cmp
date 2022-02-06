@@ -45,13 +45,11 @@ def nfa_to_dfa(automaton):
             if len(new_node.states) == 0:
                 continue
 
-            founded = False
             for nodei in node_array:
                 if(nodei == new_node):
                     new_node = nodei
-                    founded = True
                     break
-            if(founded is False):
+            else:
                 new_node.id = len(node_array)
                 stack.append(new_node)
                 node_array.append(new_node)

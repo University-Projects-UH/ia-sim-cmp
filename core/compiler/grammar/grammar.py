@@ -1,6 +1,6 @@
 
 class Symbol:
-    
+
     def __init__(self, name, grammar):
         self.name = name
         self.grammar = grammar
@@ -10,7 +10,7 @@ class Symbol:
 
     def __repr__(self) -> str:
         return self.__str__()
-    
+
     def __add__(self, elem):
 
         if isinstance(elem, Symbol):
@@ -92,7 +92,7 @@ class Terminal(Symbol):
 
     def __init__(self, name, grammar):
         super().__init__(name, grammar)
-        
+
     @property
     def is_terminal(self):
         return True
@@ -197,6 +197,9 @@ class Production:
     def __eq__(self, other):
         return isinstance(other, Production) and self.left == other.left and self.right == other.right
 
+    def __hash__(self):
+        return hash((self.left, self.right))
+
     @property
     def is_epsilon(self):
         return self.right.is_epsilon
@@ -208,7 +211,7 @@ class AttributedProduction(Production):
 
         if not isinstance(sentence, Sentence) and isinstance(sentence, Symbol):
             sentence = Sentence(sentence)
-        
+
         super().__init__(non_terminal, sentence)
         self.attributes = attributes
 
@@ -277,7 +280,7 @@ class Grammar:
 
             if self.start_non_terminal is None:
                 self.start_non_terminal = nt
-            
+
             else:
                 raise Exception("Connat define more than one start non terminal")
 
@@ -311,7 +314,7 @@ class Grammar:
 
         production.left.productions.append(production)
         self.productions.append(production)
-    
+
     def __str__(self):
 
         ans = "Non Terminals:\n"
@@ -333,8 +336,8 @@ class Grammar:
             ans += '\n'
 
         return ans
-    
-    
+
+
     def __getitem__(self, name):
         try:
             return self.symbols[name]
@@ -355,7 +358,7 @@ class Grammar:
 
     @property
     def is_augmented_grammar(self):
-        
+
         count = 0
 
         for left, _ in self.productions:
@@ -384,5 +387,5 @@ class Grammar:
                 SP %= S + G.epsilon
 
             return G
-        
+
         return self.copy()
