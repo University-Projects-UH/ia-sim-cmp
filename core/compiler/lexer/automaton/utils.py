@@ -73,6 +73,12 @@ def nfa_to_dfa(automaton):
             tag = automaton.get_tag(state)
             if(tag):
                 dfa.put_tag(node.id, tag)
+
+    # copy items
+    for node in node_array:
+        for state in node.states:
+            dfa.put_items(node.id, automaton.get_items(state))
+
     return dfa
 
 def union_automatas(aut_a, aut_b):
