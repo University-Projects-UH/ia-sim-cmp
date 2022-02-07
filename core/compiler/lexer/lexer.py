@@ -13,7 +13,7 @@ class Lexer:
         regexs_aut = []
         for i in range(len(regex_array)):
             token_type, regex = regex_array[i]
-            # this is an dfa
+            # this is a dfa
             regex_aut = Regex(regex).automaton
             for final_state in regex_aut.finals_states:
                 regex_aut.put_tag(final_state, (i, token_type))
