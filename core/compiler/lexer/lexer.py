@@ -50,7 +50,7 @@ class Lexer:
             final_state, lex = self._walk(text)
             if(final_state == None):
                 break
-            assert final_state != None, "The text does not match with the defined gramatic"
+            # assert final_state != None, "The text does not match with the defined gramatic"
 
             assert len(lex) != 0, 'Error'
 
