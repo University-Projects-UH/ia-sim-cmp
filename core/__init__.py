@@ -23,3 +23,5 @@ from .compiler.lexer.automaton.utils import union_automatas, closure_automaton, 
 # ast related
 from .compiler.lexer.ast import SymbolNode, ClosureNode
 
+# bot grammar
+from .compiler.bots_grammar import BotGrammar
