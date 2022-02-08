@@ -11,7 +11,7 @@ class Item:
 
         self.production = production
         self.position = position
-        self.lookaheads = tuple(l for l in lookaheads)
+        self.lookaheads = frozenset(l for l in lookaheads)
 
     def __str__(self):
         return str(self.production) + " pos: " + str(self.position)
@@ -23,15 +23,24 @@ class Item:
             return Item(self.production, self.position + 1, self.lookaheads)
 
         return None
+        
     def __eq__(self, other):
         return (
             (self.position == other.position) and
             (self.production == other.production) and 
-            (self.lookaheads == other.lookaheads)
+            (set(self.lookaheads) == set(other.lookaheads))
         )
 
     def __hash__(self):
-        return hash((self.production,self.position, self.lookaheads))
+        return hash((self.production, self.position, self.lookaheads))
+
+    def Center(self):
+        return Item(self.production, self.position)
+
+    def Preview(self, skip = 1):
+
+        not_seen = self.production.right[self.position + skip:]
+        return [ not_seen + (l,) for l in self.lookaheads]
 
     # Return True if the entire production was viewed
     @property
