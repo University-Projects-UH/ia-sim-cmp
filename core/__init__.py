@@ -7,7 +7,7 @@ from .bots.smart_bot import SmartBot
 from .compiler.grammar.grammar import Grammar, Sentence, Production
 
 # parser related
-from .compiler.parser.firsts_follows import compute_firsts, compute_follows
+from .compiler.parser.firsts_follows import compute_firsts, compute_follows, compute_local_first
 from .compiler.parser.parser_ll import non_recursive_descending_parser_fixed, non_recursive_descending_parser, build_table_parser_ll1, is_ll1, evaluate_left_parse
 from .compiler.parser.utils import ContainerSet
 #from .compiler.parser.slr1 import SLR1Parser
