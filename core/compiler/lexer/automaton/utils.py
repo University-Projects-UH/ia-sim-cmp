@@ -137,7 +137,7 @@ def concat_automatas(aut_a, aut_b):
     for b_final_state in aut_b.finals_states:
         transitions.append((b_final_state + aux, '', [new_final_state]))
 
-    new_aut = Automaton(states, 0, [new_final_state], transitions)
+    new_aut = Automaton(states, aut_a.start_state, [new_final_state], transitions)
     # copy tags
     for i in range(aut_a.states):
         new_aut.put_tag(i, aut_a.tags[i])
