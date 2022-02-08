@@ -82,12 +82,11 @@ class BotGrammar:
         stat %= float_declaration
         stat %= bool_declaration
 
-        grid_bot_declaration %= grid_bot + ID + expression + expression + expression + expression + expression + expression + array
+        grid_bot_declaration %= grid_bot + ID + elem_list
 
-        rebalance_bot_declaration %= rebalance_bot + ID + expression + expression + expression + array + expression + array
-        rebalance_bot_declaration %= rebalance_bot + ID + expression + expression + expression + array
+        rebalance_bot_declaration %= rebalance_bot + ID + elem_list
 
-        smart_bot_declaration %= smart_bot + ID + expression + expression + expression + array
+        smart_bot_declaration %= smart_bot + ID + elem_list
 
         asset_declaration %= asset + ID + ID
 
@@ -111,11 +110,11 @@ class BotGrammar:
         array %= obracket + elem_list + cbracket
 
         elem_list %= elem
-        elem_list %= elem + colon + elem
+        elem_list %= elem + colon + elem_list
 
-        elem %= ID
         elem %= expression
         elem %= boolean
+        elem %= array
 
         print_elem %= printt + elem
 
@@ -125,8 +124,8 @@ class BotGrammar:
         expression %= expression + minus + term
         expression %= term
 
-        term %= term + mul + term
-        term %= term + div + term
+        term %= term + mul + factor
+        term %= term + div + factor
         term %= factor
 
         factor %= opar + expression + cpar
