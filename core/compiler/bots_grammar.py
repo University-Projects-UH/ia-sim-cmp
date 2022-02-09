@@ -48,6 +48,10 @@ class BotGrammar:
 
         portfolio_declaration = G.add_non_terminal('<portfolio_declaration>')
 
+        asset_array_declaration = G.add_non_terminal('<asset_array_declaration>')
+
+        re_assign = G.add_non_terminal('<re_assign>')
+
 
         ###############################################
         #               TERMINALS
@@ -66,6 +70,7 @@ class BotGrammar:
         ID = G.add_terminal('id')
         int_number, float_number = G.add_terminals('int_number float_number')
         portfolio = G.add_terminal('portfolio')
+        assets = G.add_terminal('assets')
 
 
         ###############################################
@@ -85,6 +90,9 @@ class BotGrammar:
         stat %= float_declaration
         stat %= bool_declaration
         stat %= portfolio_declaration
+        stat %= asset_array_declaration
+        stat %= print_elem
+        stat %= re_assign
 
         grid_bot_declaration %= grid_bot + ID + elem_list
 
@@ -94,6 +102,8 @@ class BotGrammar:
 
         asset_declaration %= asset + ID + ID
 
+        asset_array_declaration %= assets + ID + assign + array
+
         int_decalaration %= intt + ID + assign + expression
 
         float_declaration %= floatt + ID + assign + expression
@@ -101,6 +111,8 @@ class BotGrammar:
         bool_declaration %= boolt + ID + assign + boolean
 
         portfolio_declaration %= portfolio + ID + elem_list
+
+        re_assign %= ID + assign + elem
 
         boolean %= opar + boolean + cpar
         boolean %= negate + boolean
