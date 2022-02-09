@@ -46,6 +46,8 @@ class BotGrammar:
 
         expression, term, factor, atom = G.add_non_terminals('<expression> <term> <factor> <atom>')
 
+        portfolio_declaration = G.add_non_terminal('<portfolio_declaration>')
+
 
         ###############################################
         #               TERMINALS
@@ -63,6 +65,7 @@ class BotGrammar:
         plus, minus, div, mul = G.add_terminals('+ - / *')
         ID = G.add_terminal('id')
         int_number, float_number = G.add_terminals('int_number float_number')
+        portfolio = G.add_terminal('portfolio')
 
 
         ###############################################
@@ -81,6 +84,7 @@ class BotGrammar:
         stat %= int_decalaration
         stat %= float_declaration
         stat %= bool_declaration
+        stat %= portfolio_declaration
 
         grid_bot_declaration %= grid_bot + ID + elem_list
 
@@ -95,6 +99,8 @@ class BotGrammar:
         float_declaration %= floatt + ID + assign + expression
 
         bool_declaration %= boolt + ID + assign + boolean
+
+        portfolio_declaration %= portfolio + ID + elem_list
 
         boolean %= opar + boolean + cpar
         boolean %= negate + boolean
