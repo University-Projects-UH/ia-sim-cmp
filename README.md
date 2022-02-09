@@ -5,6 +5,20 @@
 - Frank Abel Blanco Gómez C312
 - Karel Díaz Vergara C312
 
+## Install and run
+``` bash
+$ git clone https://github.com/University-Projects-UH/ia-sim-cmp
+$ cd ./ia-sim-cmp
+$ python3 -m virtualenv env
+$ source env/bin/activate
+$ pip3 install < requirements.txt
+```
+
+## Run tests:
+``` bash
+$ pytest
+```
+
 ## Resumen:
 
 Existen dos entidades fundamentales, los activos y los bots, de forma tal que con el lenguaje puedas crear activos y asociarle una gráfica de yahoo finance, esto para poder tener un histórico de este activo, y poder simular la corrida de los bots.
