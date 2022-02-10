@@ -1,4 +1,12 @@
 from core import Grammar, Production
+from .ast.ast import ProgramNode, GridBotDeclarationNode, RebalanceBotDeclarationNode, SmartBotDeclarationNode
+from .ast.ast import AssetDeclarationNode, AssetsDeclarationNode, PortfolioDeclarationNode
+from .ast.ast import IntDeclarationNode, BoolDeclarationNode, FloatDeclarationNode, ReAssignNode
+from .ast.ast import NegateBooleanNode, ParenthesisNode
+from .ast.ast import EqualNode, NotEqualNode, GreatEqNode, GreatNode, LessEqNode, LessNode
+from .ast.ast import PrintNode, FuncCallNode
+from .ast.ast import PlusNode, MinusNode, MulNode, DivNode
+from .ast.ast import IntNode, FloatNode, BoolNode, VariableNode
 
 class BotGrammar:
 
@@ -77,81 +85,82 @@ class BotGrammar:
         #               PRODUCTIONS
         ###############################################
 
-        program %= stat_list
+        program %= stat_list, lambda h, s: ProgramNode(s[1])
 
-        stat_list %= stat + semicolon
-        stat_list %= stat + semicolon + stat_list
+        stat_list %= stat + semicolon, lambda h, s: [s[1]]
+        stat_list %= stat + semicolon + stat_list, lambda h, s: [s[1]] + s[3]
 
-        stat %= grid_bot_declaration
-        stat %= rebalance_bot_declaration
-        stat %= smart_bot_declaration
-        stat %= asset_declaration
-        stat %= int_decalaration
-        stat %= float_declaration
-        stat %= bool_declaration
-        stat %= portfolio_declaration
-        stat %= asset_array_declaration
-        stat %= print_elem
-        stat %= re_assign
+        stat %= grid_bot_declaration, lambda h, s: s[1]
+        stat %= rebalance_bot_declaration, lambda h, s: s[1]
+        stat %= smart_bot_declaration, lambda h, s: s[1]
+        stat %= asset_declaration, lambda h, s: s[1]
+        stat %= int_decalaration, lambda h, s: s[1]
+        stat %= float_declaration, lambda h, s: s[1]
+        stat %= bool_declaration, lambda h, s: s[1]
+        stat %= portfolio_declaration, lambda h, s: s[1]
+        stat %= asset_array_declaration, lambda h, s: s[1]
+        stat %= print_elem, lambda h, s: s[1]
+        stat %= re_assign, lambda h, s: s[1]
+        stat %= func_call, lambda h, s: s[1]
 
-        grid_bot_declaration %= grid_bot + ID + elem_list
+        grid_bot_declaration %= grid_bot + ID + assign + grid_bot + opar + elem_list + cpar, lambda h, s: GridBotDeclarationNode(s[2], s[6])
 
-        rebalance_bot_declaration %= rebalance_bot + ID + elem_list
+        rebalance_bot_declaration %= rebalance_bot + ID + assign + rebalance_bot + opar + elem_list + cpar, lambda h, s: RebalanceBotDeclarationNode(s[2], s[6])
 
-        smart_bot_declaration %= smart_bot + ID + elem_list
+        smart_bot_declaration %= smart_bot + ID + assign + smart_bot + opar + elem_list + cpar, lambda h, s: SmartBotDeclarationNode(s[2], s[6])
 
-        asset_declaration %= asset + ID + ID
+        asset_declaration %= asset + ID + assign + asset + opar + ID + cpar, lambda h, s: AssetDeclarationNode(s[2], s[6])
 
-        asset_array_declaration %= assets + ID + assign + array
+        asset_array_declaration %= assets + ID + assign + array, lambda h, s: AssetsDeclarationNode(s[2], s[4])
 
-        int_decalaration %= intt + ID + assign + expression
+        int_decalaration %= intt + ID + assign + expression, lambda h, s: IntDeclarationNode(s[2], s[4])
 
-        float_declaration %= floatt + ID + assign + expression
+        float_declaration %= floatt + ID + assign + expression, lambda h, s: FloatDeclarationNode(s[2], s[4])
 
-        bool_declaration %= boolt + ID + assign + boolean
+        bool_declaration %= boolt + ID + assign + boolean, lambda h, s: BoolDeclarationNode(s[2], s[4])
 
-        portfolio_declaration %= portfolio + ID + elem_list
+        portfolio_declaration %= portfolio + ID + assign + portfolio + opar + elem_list + cpar, lambda h, s: PortfolioDeclarationNode(s[2], s[6])
 
-        re_assign %= ID + assign + elem
+        re_assign %= ID + assign + elem, lambda h, s: ReAssignNode(s[1], s[3])
 
-        boolean %= opar + boolean + cpar
-        boolean %= negate + boolean
-        boolean %= expression + equal + expression
-        boolean %= expression + not_equal + expression
-        boolean %= expression + great_eq + expression
-        boolean %= expression + less_eq + expression
-        boolean %= expression + less + expression
-        boolean %= expression + great + expression
-        boolean %= truet
-        boolean %= falset
+        boolean %= opar + boolean + cpar, lambda h, s: s[2]
+        boolean %= negate + boolean, lambda h, s: NegateBooleanNode(s[2])
+        boolean %= expression + equal + expression, lambda h, s: EqualNode(s[1], s[3])
+        boolean %= expression + not_equal + expression, lambda h, s: NotEqualNode(s[1], s[3])
+        boolean %= expression + great_eq + expression, lambda h, s: GreatEqNode(s[1], s[3])
+        boolean %= expression + less_eq + expression, lambda h, s: LessEqNode(s[1], s[3])
+        boolean %= expression + less + expression, lambda h, s: LessNode(s[1], s[3])
+        boolean %= expression + great + expression, lambda h, s: GreatEqNode(s[1], s[3])
+        boolean %= truet, lambda h, s: BoolNode(s[1])
+        boolean %= falset, lambda h, s: BoolNode(s[1])
 
-        array %= obracket + elem_list + cbracket
+        array %= obracket + elem_list + cbracket, lambda h, s: s[2]
 
-        elem_list %= elem
-        elem_list %= elem + colon + elem_list
+        elem_list %= elem, lambda h, s: [s[1]]
+        elem_list %= elem + colon + elem_list, lambda h, s: [s[1]] + s[3]
 
-        elem %= expression
-        elem %= boolean
-        elem %= array
+        elem %= expression, lambda h, s: s[1]
+        elem %= boolean, lambda h, s: s[1]
+        elem %= array, lambda h, s: s[1]
 
-        print_elem %= printt + elem
+        print_elem %= printt + elem, lambda h, s: PrintNode(s[2])
 
-        func_call %= ID + opar + elem_list + cpar
+        func_call %= ID + opar + elem_list + cpar, lambda h, s: FuncCallNode(s[1], s[3])
 
-        expression %= expression + plus + term
-        expression %= expression + minus + term
-        expression %= term
+        expression %= expression + plus + term, lambda h, s: PlusNode(s[1], s[3])
+        expression %= expression + minus + term, lambda h, s: MinusNode(s[1], s[3])
+        expression %= term, lambda h, s: s[1]
 
-        term %= term + mul + factor
-        term %= term + div + factor
-        term %= factor
+        term %= term + mul + factor, lambda h, s: MulNode(s[1], s[3])
+        term %= term + div + factor, lambda h, s: DivNode(s[1], s[3])
+        term %= factor, lambda h, s: s[1]
 
-        factor %= opar + expression + cpar
-        factor %= atom
+        factor %= opar + expression + cpar, lambda h, s: s[2]
+        factor %= atom, lambda h, s: s[1]
 
-        atom %= int_number
-        atom %= float_number
-        atom %= ID
-        atom %= func_call
+        atom %= int_number, lambda h, s: IntNode(s[1])
+        atom %= float_number, lambda h, s: FloatNode(s[1])
+        atom %= ID, lambda h, s: VariableNode(s[1])
+        atom %= func_call, lambda h, s: s[1]
 
         return G

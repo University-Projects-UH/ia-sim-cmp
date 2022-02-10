@@ -9,7 +9,6 @@ class ProgramNode():
         self.statements = statements
         
 
-
 class StatementNode(Node):
     pass
 
@@ -45,25 +44,25 @@ class BotDeclaration(StatementNode):
         self.params = params
 
 
-class GridBotDeclaration(BotDeclaration):
+class GridBotDeclarationNode(BotDeclaration):
 
     def __init__(self, id, params):
         super().__init__(id, params)
 
 
-class RebalanceBotDeclaration(BotDeclaration):
+class RebalanceBotDeclarationNode(BotDeclaration):
 
     def __init__(self, id, params):
         super().__init__(id, params)
 
 
-class SmartBotDeclaration(BotDeclaration):
+class SmartBotDeclarationNode(BotDeclaration):
 
     def __init__(self, id, params):
         super().__init__(id, params)
 
 
-class AssetDeclaration(StatementNode):
+class AssetDeclarationNode(StatementNode):
 
     def __init__(self, id, asset):
 
@@ -71,7 +70,7 @@ class AssetDeclaration(StatementNode):
         self.asset = asset
 
 
-class AssetsDeclaration(StatementNode):
+class AssetsDeclarationNode(StatementNode):
 
     def __init__(self, id, assets):
 
@@ -79,7 +78,7 @@ class AssetsDeclaration(StatementNode):
         self.assets = assets
 
 
-class IntDeclaration(StatementNode):
+class IntDeclarationNode(StatementNode):
 
     def __init__(self, id, expression):
 
@@ -87,7 +86,7 @@ class IntDeclaration(StatementNode):
         self.expression = expression
 
 
-class FloatDeclaration(StatementNode):
+class FloatDeclarationNode(StatementNode):
 
     def __init__(self, id, expression):
 
@@ -95,7 +94,7 @@ class FloatDeclaration(StatementNode):
         self.expression = expression
 
 
-class BoolDeclaration(StatementNode):
+class BoolDeclarationNode(StatementNode):
 
     def __init__(self, id, boolean):
 
@@ -103,12 +102,20 @@ class BoolDeclaration(StatementNode):
         self.boolean = boolean
 
 
-class PortfolioDeclaration(StatementNode):
+class PortfolioDeclarationNode(StatementNode):
 
     def __init__(self, id, params):
         
         self.id = id
         self.params = params
+
+
+class ReAssignNode(StatementNode):
+
+    def __init__(self, id, value):
+        
+        self.id = id
+        self.value = value
 
 
 class NegateBooleanNode(UnaryNode):
