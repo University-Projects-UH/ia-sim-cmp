@@ -11,3 +11,9 @@ testing.py
 pip3free.sh
 
 env/
+
+#alurquiza
+myenv/
+csv/
+*.directory
+.gitignore
