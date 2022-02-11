@@ -1,6 +1,6 @@
 
 class Symbol:
-    
+
     def __init__(self, name, grammar):
         self.name = name
         self.grammar = grammar
@@ -10,7 +10,7 @@ class Symbol:
 
     def __repr__(self) -> str:
         return self.__str__()
-    
+
     def __add__(self, elem):
 
         if isinstance(elem, Symbol):
@@ -92,7 +92,7 @@ class Terminal(Symbol):
 
     def __init__(self, name, grammar):
         super().__init__(name, grammar)
-        
+
     @property
     def is_terminal(self):
         return True
@@ -145,6 +145,9 @@ class Sentence:
     def __len__(self):
         return len(self.symbols)
 
+    def __getitem__(self, index):
+        return self.symbols[index]
+
     @property
     def is_epsilon(self):
         return False
@@ -181,6 +184,10 @@ class Production:
         self.left = non_terminal
         self.right = sentence
 
+    def __iter__(self):
+        yield self.left
+        yield self.right
+
     def __str__(self) -> str:
         return "%s := %s" % (self.left, self.right)
 
@@ -189,6 +196,9 @@ class Production:
 
     def __eq__(self, other):
         return isinstance(other, Production) and self.left == other.left and self.right == other.right
+
+    def __hash__(self):
+        return hash((self.left, self.right))
 
     @property
     def is_epsilon(self):
@@ -201,7 +211,7 @@ class AttributedProduction(Production):
 
         if not isinstance(sentence, Sentence) and isinstance(sentence, Symbol):
             sentence = Sentence(sentence)
-        
+
         super().__init__(non_terminal, sentence)
         self.attributes = attributes
 
@@ -270,7 +280,7 @@ class Grammar:
 
             if self.start_non_terminal is None:
                 self.start_non_terminal = nt
-            
+
             else:
                 raise Exception("Connat define more than one start non terminal")
 
@@ -304,7 +314,7 @@ class Grammar:
 
         production.left.productions.append(production)
         self.productions.append(production)
-    
+
     def __str__(self):
 
         ans = "Non Terminals:\n"
@@ -326,10 +336,56 @@ class Grammar:
             ans += '\n'
 
         return ans
-    
-    
+
+
     def __getitem__(self, name):
         try:
             return self.symbols[name]
         except KeyError:
             return None
+
+    def copy(self):
+
+        G = Grammar()
+        G.terminals = self.terminals.copy()
+        G.non_terminals = self.non_terminals.copy()
+        G.productions = self.productions.copy()
+        G.start_non_terminal = self.start_non_terminal
+        G.eof = self.eof
+        G.epsilon = self.epsilon
+        G.symbols = self.symbols.copy()
+        return G
+
+    @property
+    def is_augmented_grammar(self):
+
+        count = 0
+
+        for left, _ in self.productions:
+
+            if self.start_non_terminal == left:
+                count += 1
+
+            if count > 1:
+                return False
+
+        return True
+
+    def AugmentedGrammar(self, force = False):
+
+        if not self.is_augmented_grammar or force:
+
+            G = self.copy()
+            S = G.start_non_terminal
+            G.start_non_terminal = None
+            SP = G.add_non_terminal('S\'', True)
+
+            if isinstance(S.productions[0], AttributedProduction):
+                SP %= S + G.epsilon, lambda x : x
+
+            else:
+                SP %= S + G.epsilon
+
+            return G
+
+        return self.copy()

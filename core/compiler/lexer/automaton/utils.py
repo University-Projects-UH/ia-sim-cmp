@@ -45,13 +45,11 @@ def nfa_to_dfa(automaton):
             if len(new_node.states) == 0:
                 continue
 
-            founded = False
             for nodei in node_array:
                 if(nodei == new_node):
                     new_node = nodei
-                    founded = True
                     break
-            if(founded is False):
+            else:
                 new_node.id = len(node_array)
                 stack.append(new_node)
                 node_array.append(new_node)
@@ -73,6 +71,12 @@ def nfa_to_dfa(automaton):
             tag = automaton.get_tag(state)
             if(tag):
                 dfa.put_tag(node.id, tag)
+
+    # copy items
+    for node in node_array:
+        for state in node.states:
+            dfa.put_items(node.id, automaton.get_items(state))
+
     return dfa
 
 def union_automatas(aut_a, aut_b):
@@ -133,7 +137,7 @@ def concat_automatas(aut_a, aut_b):
     for b_final_state in aut_b.finals_states:
         transitions.append((b_final_state + aux, '', [new_final_state]))
 
-    new_aut = Automaton(states, 0, [new_final_state], transitions)
+    new_aut = Automaton(states, aut_a.start_state, [new_final_state], transitions)
     # copy tags
     for i in range(aut_a.states):
         new_aut.put_tag(i, aut_a.tags[i])

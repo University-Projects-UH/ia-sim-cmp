@@ -5,6 +5,7 @@ class Automaton:
     def __init__(self, states, start_state, finals_states, transitions):
         self.states = states
         self.tags = [None] * states
+        self.items = [[] for _ in range(states)]
         self.start_state = start_state
         self.finals_states = finals_states
         self.transitions = {}
@@ -29,6 +30,14 @@ class Automaton:
 
     def get_epsilon_transitions(self, state):
         return self.get_ends_array_by_state_c(state, "")
+
+    def get_items(self, state):
+        return self.items[state]
+
+    def put_items(self, state, items):
+        if(items is None):
+            return
+        self.items[state] += items
 
     def put_tag(self, state, tag):
         if(self.tags[state] is None):

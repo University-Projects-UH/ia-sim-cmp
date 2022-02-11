@@ -34,6 +34,24 @@ class ContainerSet:
         merge = self.update(other) or self.epsilon_update(other)
         return merge
 
+    def extend(self, values):
+
+        change = False
+
+        for value in values:
+            change |= self.add(value)
+
+        return change
+
+    def find_match(self, match):
+
+        for item in self.set:
+
+            if item == match:
+                return item
+                
+        return None
+
     def __len__(self):
         return len(self.set) + int(self.contains_epsilon)
 

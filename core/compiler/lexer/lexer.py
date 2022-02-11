@@ -12,8 +12,8 @@ class Lexer:
     def _build_regexs(self, regex_array):
         regexs_aut = []
         for i in range(len(regex_array)):
-            token_type, regex = regex_array[i]
-            # this is an dfa
+            regex, token_type = regex_array[i]
+            # this is a dfa
             regex_aut = Regex(regex).automaton
             for final_state in regex_aut.finals_states:
                 regex_aut.put_tag(final_state, (i, token_type))
@@ -50,11 +50,13 @@ class Lexer:
             final_state, lex = self._walk(text)
             if(final_state == None):
                 break
-            assert final_state != None, "The text does not match with the defined gramatic"
+            # assert final_state != None, "The text does not match with the defined gramatic"
 
             assert len(lex) != 0, 'Error'
 
             text = text[len(lex):]
+            if(aut.get_tag(final_state)[1] == "space"):
+                continue
             yield lex, aut.get_tag(final_state)[1]
 
         yield '$', self.eof
