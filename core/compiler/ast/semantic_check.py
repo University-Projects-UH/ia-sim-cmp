@@ -1,12 +1,12 @@
-import .visitor as visitor
+from . import visitor as visitor
 from .ast import *
 
 types_check = {
     "number": ["FloatNode", "IntNode", "FloatDeclarationNode", "IntDeclarationNode"],
     "int": ["IntNode", "IntDeclarationNode"],
-    "float": ["FloatNode", "FloatDeclarationNode"]
+    "float": ["FloatNode", "FloatDeclarationNode"],
     "list_asset": ["AssetsDeclarationNode"],
-    "list_float": ["PortfolioDeclarationNode"]
+    "list_float": ["PortfolioDeclarationNode"],
     "asset": ["str", "AssetDeclarationNode"]
 }
 
@@ -21,7 +21,7 @@ def check_param(param, _type, variables = {}):
         try:
             param = variables[param_type]
             param_type = type(param).__name__
-        except KeyError
+        except KeyError:
             return f"Variable \"{param.lex}\" no declarada"
 
     if(_type.startswith("list")):
@@ -53,7 +53,7 @@ class SemanticChecker(object):
     def visit(self, node, variables = {}):
         errors = []
         variables = {}
-        for statement in statements:
+        for statement in node.statements:
             errors += self.visit(statement, variables)
 
     @visitor.when(GridBotDeclarationNode)
