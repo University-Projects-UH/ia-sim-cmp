@@ -7,7 +7,7 @@ class ProgramNode():
 
     def __init__(self, statements):
         self.statements = statements
-        
+
 
 class StatementNode(Node):
     pass
@@ -105,7 +105,7 @@ class BoolDeclarationNode(StatementNode):
 class PortfolioDeclarationNode(StatementNode):
 
     def __init__(self, id, params):
-        
+
         self.id = id
         self.params = params
 
@@ -113,7 +113,7 @@ class PortfolioDeclarationNode(StatementNode):
 class ReAssignNode(StatementNode):
 
     def __init__(self, id, value):
-        
+
         self.id = id
         self.value = value
 
