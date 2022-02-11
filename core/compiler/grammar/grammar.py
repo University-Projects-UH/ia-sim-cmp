@@ -371,9 +371,9 @@ class Grammar:
 
         return True
 
-    def AugmentedGrammar(self):
+    def AugmentedGrammar(self, force = False):
 
-        if not self.is_augmented_grammar:
+        if not self.is_augmented_grammar or force:
 
             G = self.copy()
             S = G.start_non_terminal

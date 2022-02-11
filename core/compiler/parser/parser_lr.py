@@ -95,7 +95,7 @@ def build_LR1_automaton(G):
 
 class LR1Parser(ShiftReduceParser):
     def build_parsing_table(self):
-        G = self.grammar.AugmentedGrammar()
+        G = self.grammar.AugmentedGrammar(True)
 
         aut = build_LR1_automaton(G)
 
