@@ -5,6 +5,7 @@ from core.compiler.lexer.token import Token
 from core.compiler.parser.parser_shift_reduce import evaluate_reverse_parse
 from core.compiler.ast.ast import ProgramNode
 from core.compiler.ast.format_visitor import FormatVisitor
+from core.compiler.ast.bot_transpiler import BotTranspiler
 
 def test_answer():
 
@@ -42,6 +43,8 @@ def test_answer():
 
     ast = evaluate_reverse_parse(right_parse, operations, tokens)
     formatter = FormatVisitor()
+    transpiler = BotTranspiler()
     print(formatter.visit(ast))
+    transpiler.visit(ast)
 
     assert isinstance(ast, ProgramNode)
