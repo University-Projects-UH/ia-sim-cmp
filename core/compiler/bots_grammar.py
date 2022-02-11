@@ -78,6 +78,8 @@ class BotGrammar:
         ID = G.add_terminal('id')
         int_number, float_number = G.add_terminals('int_number float_number')
         portfolio = G.add_terminal('portfolio')
+        portfolio_min_sd = G.add_terminal('portfolio_min_sd')
+        portfolio_max_sharpe_ratio = G.add_terminal('portfolio_max_sharpe_ratio')
         assets = G.add_terminal('assets')
 
 
@@ -123,7 +125,8 @@ class BotGrammar:
 
         bool_declaration %= boolt + ID + assign + elem, lambda h, s: BoolDeclarationNode(s[2], s[4])
 
-        portfolio_declaration %= portfolio + ID + assign + portfolio + opar + elem_list + cpar, lambda h, s: PortfolioDeclarationNode(s[2], s[6])
+        portfolio_declaration %= portfolio + ID + assign + portfolio_min_sd + opar + elem_list + cpar, lambda h, s: PortfolioDeclarationNode(s[2], s[6])
+        portfolio_declaration %= portfolio + ID + assign + portfolio_max_sharpe_ratio + opar + elem_list + cpar, lambda h, s: PortfolioDeclarationNode(s[2], s[6])
         portfolio_declaration %= portfolio + ID + assign + elem
 
         re_assign %= ID + assign + elem, lambda h, s: ReAssignNode(s[1], s[3])

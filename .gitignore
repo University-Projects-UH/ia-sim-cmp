@@ -9,5 +9,6 @@ testing.py
 
 .vim/
 pip3free.sh
+code_transpiled.py
 
 env/

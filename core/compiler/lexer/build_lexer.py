@@ -23,7 +23,10 @@ KEYWORDS = {
     'end': '{e}{n}{d}',
     'print': '{p}{r}{i}{n}{t}',
     'True': '{T}{r}{u}{e}',
-    'False': '{F}{a}{l}{s}{e}'
+    'False': '{F}{a}{l}{s}{e}',
+    'portfolio': '{p}{o}{r}{t}{f}{o}{l}{i}{o}',
+    'portfolio_max_sharpe_ratio': '{p}{o}{r}{t}{f}{o}{l}{i}{o}{_}{m}{a}{x}{_}{s}{h}{a}{r}{p}{e}{_}{r}{a}{t}{i}{o}',
+    'portfolio_min_sd': '{p}{o}{r}{t}{f}{o}{l}{i}{o}{_}{m}{i}{n}{_}{s}{d}'
 }
 SYMBOLS = {
     '+', '-', '/', '*', '(', ')', '!',
