@@ -14,9 +14,11 @@ def run_project():
     G = BotGrammar().grammar
     parser_lr = LR1Parser(G)
 
+    token_types = [G.symbols[t.reg_type] for t in tokens]
+
     print([token.reg_type for token in tokens])
 
-    right_parse, operations = parser_lr([token.reg_type for token in tokens], True)
+    right_parse, operations = parser_lr(token_types, True)
     ast = evaluate_reverse_parse(right_parse, operations, tokens)
     transpiler = BotTranspiler()
     transpiler.visit(ast)
