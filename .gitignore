@@ -1,0 +1,20 @@
+### Python ###
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+*.csv
+testing.py
+
+.vim/
+pip3free.sh
+code_transpiled.py
+
+env/
+
+#alurquiza
+myenv/
+csv/
+*.directory
+.gitignore
