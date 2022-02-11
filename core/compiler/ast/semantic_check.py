@@ -1,12 +1,12 @@
-import .visitor as visitor
+from . import visitor as visitor
 from .ast import *
 
 types_check = {
     "number": ["FloatNode", "IntNode", "FloatDeclarationNode", "IntDeclarationNode"],
     "int": ["IntNode", "IntDeclarationNode"],
-    "float": ["FloatNode", "FloatDeclarationNode"]
+    "float": ["FloatNode", "FloatDeclarationNode"],
     "list_asset": ["AssetsDeclarationNode"],
-    "list_float": ["PortfolioDeclarationNode"]
+    "list_float": ["PortfolioDeclarationNode"],
     "asset": ["str", "AssetDeclarationNode"]
 }
 
@@ -21,7 +21,7 @@ def check_param(param, _type, variables = {}):
         try:
             param = variables[param_type]
             param_type = type(param).__name__
-        except KeyError
+        except KeyError:
             return f"Variable \"{param.lex}\" no declarada"
 
     if(_type.startswith("list")):
@@ -53,7 +53,7 @@ class SemanticChecker(object):
     def visit(self, node, variables = {}):
         errors = []
         variables = {}
-        for statement in statements:
+        for statement in node.statements:
             errors += self.visit(statement, variables)
 
     @visitor.when(GridBotDeclarationNode)
@@ -115,86 +115,53 @@ class SemanticChecker(object):
             return f"Variable {node.id} no declarada"
 
     @visitor.when(NegateBooleanNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__ NegateBooleanNode'
-        return ans
+    def visit(self, node, variable = {}):
+        raise NotImplementedError()
 
     @visitor.when(EqualNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__EqualNode'
-        left = self.visit(node.left, tabs + 1)
-        right = self.visit(node.right, tabs + 1)
-        return f'{ans}\n{left}\n{right}'
+    def visit(self, node, variable = {}):
+        raise NotImplementedError()
 
     @visitor.when(NoEqualNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__NoEqualNode'
-        left = self.visit(node.left, tabs + 1)
-        right = self.visit(node.right, tabs + 1)
-        return f'{ans}\n{left}\n{right}'
+    def visit(self, node, variable = {}):
+        raise NotImplementedError()
 
     @visitor.when(GreatEqNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__GreatEqNode'
-        left = self.visit(node.left, tabs + 1)
-        right = self.visit(node.right, tabs + 1)
-        return f'{ans}\n{left}\n{right}'
+    def visit(self, node, variable = {}):
+        raise NotImplementedError()
 
     @visitor.when(LessEqNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__LessEqNode'
-        left = self.visit(node.left, tabs + 1)
-        right = self.visit(node.right, tabs + 1)
-        return f'{ans}\n{left}\n{right}'
+    def visit(self, node, variable = {}):
+        raise NotImplementedError()
 
     @visitor.when(GreatNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__GreatNode'
-        left = self.visit(node.left, tabs + 1)
-        right = self.visit(node.right, tabs + 1)
-        return f'{ans}\n{left}\n{right}'
+    def visit(self, node, variable = {}):
+        raise NotImplementedError()
 
     @visitor.when(LessNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__LessNode'
-        left = self.visit(node.left, tabs + 1)
-        right = self.visit(node.right, tabs + 1)
-        return f'{ans}\n{left}\n{right}'
+    def visit(self, node, variable = {}):
+        raise NotImplementedError()
 
     @visitor.when(PrintNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__PrintNode ${node.elem}'
-        return ans
+    def visit(self, node, variable = {}):
+        raise NotImplementedError()
 
     @visitor.when(FuncCallNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__FuncCallNode'
-        return ans
+    def visit(self, node, variable = {}):
+        raise NotImplementedError()
 
     @visitor.when(PlusNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__PlusNode'
-        left = self.visit(node.left, tabs + 1)
-        right = self.visit(node.right, tabs + 1)
-        return f'{ans}\n{left}\n{right}'
+    def visit(self, node, variable = {}):
+        raise NotImplementedError()
 
     @visitor.when(MinusNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__MinusNode'
-        left = self.visit(node.left, tabs + 1)
-        right = self.visit(node.right, tabs + 1)
-        return f'{ans}\n{left}\n{right}'
+    def visit(self, node, variable = {}):
+        raise NotImplementedError()
 
     @visitor.when(MulNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__MulNode'
-        left = self.visit(node.left, tabs + 1)
-        right = self.visit(node.right, tabs + 1)
-        return f'{ans}\n{left}\n{right}'
+    def visit(self, node, variable = {}):
+        raise NotImplementedError()
 
     @visitor.when(DivNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__DivNode'
-        left = self.visit(node.left, tabs + 1)
-        right = self.visit(node.right, tabs + 1)
-        return f'{ans}\n{left}\n{right}'
+    def visit(self, node, variable = {}):
+        raise NotImplementedError()
