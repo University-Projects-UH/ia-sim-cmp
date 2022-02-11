@@ -104,22 +104,27 @@ class BotGrammar:
         stat %= func_call, lambda h, s: s[1]
 
         grid_bot_declaration %= grid_bot + ID + assign + grid_bot + opar + elem_list + cpar, lambda h, s: GridBotDeclarationNode(s[2], s[6])
+        grid_bot_declaration %= grid_bot + ID + assign + elem
 
         rebalance_bot_declaration %= rebalance_bot + ID + assign + rebalance_bot + opar + elem_list + cpar, lambda h, s: RebalanceBotDeclarationNode(s[2], s[6])
+        rebalance_bot_declaration %= rebalance_bot + ID + assign + elem
 
         smart_bot_declaration %= smart_bot + ID + assign + smart_bot + opar + elem_list + cpar, lambda h, s: SmartBotDeclarationNode(s[2], s[6])
+        smart_bot_declaration %= smart_bot + ID + assign + elem
 
         asset_declaration %= asset + ID + assign + asset + opar + ID + cpar, lambda h, s: AssetDeclarationNode(s[2], s[6])
+        asset_declaration %= asset + ID + assign + elem
 
-        asset_array_declaration %= assets + ID + assign + array, lambda h, s: AssetsDeclarationNode(s[2], s[4])
+        asset_array_declaration %= assets + ID + assign + elem, lambda h, s: AssetsDeclarationNode(s[2], s[4])
 
         int_decalaration %= intt + ID + assign + expression, lambda h, s: IntDeclarationNode(s[2], s[4])
 
         float_declaration %= floatt + ID + assign + expression, lambda h, s: FloatDeclarationNode(s[2], s[4])
 
-        bool_declaration %= boolt + ID + assign + boolean, lambda h, s: BoolDeclarationNode(s[2], s[4])
+        bool_declaration %= boolt + ID + assign + elem, lambda h, s: BoolDeclarationNode(s[2], s[4])
 
         portfolio_declaration %= portfolio + ID + assign + portfolio + opar + elem_list + cpar, lambda h, s: PortfolioDeclarationNode(s[2], s[6])
+        portfolio_declaration %= portfolio + ID + assign + elem
 
         re_assign %= ID + assign + elem, lambda h, s: ReAssignNode(s[1], s[3])
 
