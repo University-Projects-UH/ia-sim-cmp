@@ -9,12 +9,14 @@ def run_project():
 
     lexer = build_lexer()
     tokens = lexer(code)
-    print([(tok.reg_type, tok.reg_exp) for tok in tokens])
+    print([(tok.reg_exp, tok.reg_type) for tok in tokens])
 
     G = BotGrammar().grammar
     parser_lr = LR1Parser(G)
 
-    right_parse, operations = parser_lr(tokens, True)
+    print([token.reg_type for token in tokens])
+
+    right_parse, operations = parser_lr([token.reg_type for token in tokens], True)
     ast = evaluate_reverse_parse(right_parse, operations, tokens)
     transpiler = BotTranspiler()
     transpiler.visit(ast)

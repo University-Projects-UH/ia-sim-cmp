@@ -12,7 +12,7 @@ class Lexer:
     def _build_regexs(self, regex_array):
         regexs_aut = []
         for i in range(len(regex_array)):
-            token_type, regex = regex_array[i]
+            regex, token_type = regex_array[i]
             # this is a dfa
             regex_aut = Regex(regex).automaton
             for final_state in regex_aut.finals_states:
@@ -55,6 +55,8 @@ class Lexer:
             assert len(lex) != 0, 'Error'
 
             text = text[len(lex):]
+            if(aut.get_tag(final_state)[1] == "space"):
+                continue
             yield lex, aut.get_tag(final_state)[1]
 
         yield '$', self.eof
