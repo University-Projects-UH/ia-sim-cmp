@@ -2,12 +2,12 @@ from core import Regex
 
 def test_regex():
 
-    dfa = Regex('[1|2|5]').automaton
+    dfa = Regex('{1|2|5}').automaton
     assert dfa.recognize("1")
     assert dfa.recognize("2")
     assert dfa.recognize("5")
 
-    dfa = Regex('a^[a|b]^cd| ε ', True).automaton
+    dfa = Regex('a^{a|b}^cd| ε ', True).automaton
 
     assert dfa.recognize('')
     assert dfa.recognize('aaacd')

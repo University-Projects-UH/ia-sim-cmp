@@ -15,6 +15,7 @@ from .compiler.parser.utils import ContainerSet
 # lexer related
 from .compiler.lexer.lexer import Lexer
 from .compiler.lexer.regex import Regex
+from .compiler.lexer.build_lexer import build_lexer
 
 # automaton related
 from .compiler.lexer.automaton.automaton import Automaton

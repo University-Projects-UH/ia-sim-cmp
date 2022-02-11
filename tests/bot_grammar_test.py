@@ -15,11 +15,11 @@ def test_answer():
     parser_lr1 = LR1Parser(G)
     parser_slr1 = SLR1Parser(G)
 
-    tokens = [Token('int', G.symbols['int']), 
-    Token('x', G.symbols['id']), 
-    Token('=', G.symbols['=']), 
-    Token('4', G.symbols['int_number']), 
-    Token(';', G.symbols[';']), 
+    tokens = [Token('int', G.symbols['int']),
+    Token('x', G.symbols['id']),
+    Token('=', G.symbols['=']),
+    Token('4', G.symbols['int_number']),
+    Token(';', G.symbols[';']),
     Token('x', G.symbols['id']),
     Token('=', G.symbols['=']),
     Token('30', G.symbols['int_number']),
@@ -45,4 +45,3 @@ def test_answer():
     print(formatter.visit(ast))
 
     assert isinstance(ast, ProgramNode)
-    assert True == False

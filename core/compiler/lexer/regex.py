@@ -9,7 +9,7 @@ def build_grammar():
 
     E = G.add_non_terminal('E', True)
     T, F, A, X, Y, Z = G.add_non_terminals('T F A X Y Z')
-    pipe, star, opar, cpar, symbol, epsilon = G.add_terminals('| ^ [ ] symbol ε')
+    pipe, star, opar, cpar, symbol, epsilon = G.add_terminals('| ^ { } symbol ε')
 
     E %= T + X, lambda h, s: s[2], None, lambda h,s: s[1]
 
@@ -39,7 +39,7 @@ class Regex:
 
     def regex_tokenizer(self, text, G, skip_spaces):
         tokens = []
-        regex_tokens = {symbol: Token(symbol, G[symbol]) for symbol in ['|', '^', '[', ']', 'ε']}
+        regex_tokens = {symbol: Token(symbol, G[symbol]) for symbol in ['|', '^', '{', '}', 'ε']}
         for c in text:
             if(c == " " and skip_spaces):
                 continue

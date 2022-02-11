@@ -1,4 +1,5 @@
 from core import Lexer, Regex
+from core import build_lexer
 
 def test_lexer():
     nonzero_digits = '|'.join(str(n) for n in range(1,10))
@@ -8,11 +9,11 @@ def test_lexer():
     print('Letters:', letters)
 
     lexer = Lexer([
-        ('num', f'[{nonzero_digits}][0|{nonzero_digits}]^'),
+        ('num', '{' + nonzero_digits + '}{0|' + nonzero_digits + '}^'),
         ('for' , 'for'),
         ('foreach' , 'foreach'),
         ('space', '  ^'),
-        ('id', f'[{letters}][{letters}|0|{nonzero_digits}]^')
+        ('id', '{' + letters + '}{' + letters + '|0|' + nonzero_digits + '}^')
     ], 'eof')
 
     tokens = lexer("5465")
