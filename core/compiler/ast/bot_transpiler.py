@@ -14,47 +14,36 @@ class BotTranspiler(object):
 
         for stat in node.statements:
             ans += self.visit(stat) + '\n'
-        
-        # Aqui hay que crear un out.py y adentro copiarle ans
-        
 
-    @visitor.when(BotDeclaration)
-    def visit(self, node, tabs=0):
-        pass
+        f = open("code_transpiled.py", "w")
+        f.write(ans)
+        f.close()
 
-    #falta
+
     @visitor.when(GridBotDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__GridBotDeclarationNode: {node.id}'
-        params = '\n'.join(self.visit(param, tabs + 1) for param in node.params)
-        return f'{ans}\n{params}'
+        ans = str(node.id) + " = " + "GridBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
+        return ans
 
-    #falta
     @visitor.when(RebalanceBotDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__RebalanceBotDeclarationNode: {node.id}'
-        params = '\n'.join(self.visit(param, tabs + 1) for param in node.params)
-        return f'{ans}\n{params}'
+        ans = str(node.id) + " = " + "RebalanceBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
+        return ans
 
-    #falta
     @visitor.when(SmartBotDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__SmarteBotDeclarationNode: {node.id}'
-        params = '\n'.join(self.visit(param, tabs + 1) for param in node.params)
-        return f'{ans}\n{params}'
+        ans = str(node.id) + " = " + "SmartBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
+        return ans
 
-    #falta
     @visitor.when(AssetDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__AssetDeclarationNode: {node.id} = {node.asset}'
-        return f'{ans}'
+        ans = str(node.id) + " = " + "Asset(" + node.asset + ")"
+        return ans
 
-    #falta
     @visitor.when(AssetsDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__AssetsDeclarationNode: {node.id}'
-        assets = '\n'.join(self.visit(asset, tabs + 1) for asset in node.assets)
-        return f'{ans}'
+        ans = str(node.id) + " = " + "[" + ", ".join(self.visit(asset) for asset in node.assets) + "]"
+        return ans
 
     @visitor.when(IntDeclarationNode)
     def visit(self, node, tabs=0):
@@ -71,12 +60,10 @@ class BotTranspiler(object):
         ans = str(node.id) + " = " + self.visit(node.boolean)
         return ans
 
-    #falta
     @visitor.when(PortfolioDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__ PortfolioDeclarationNode: {node.id}'
-        params = '\n'.join(self.visit(param, tabs + 1) for param in node.params)
-        return f'{ans}\n{params}'
+        ans = str(node.id) + " = " + "[" + ", ".join(self.visit(param) for param in node.params) + "]"
+        return ans
 
     @visitor.when(ReAssignNode)
     def visit(self, node, tabs=0):
