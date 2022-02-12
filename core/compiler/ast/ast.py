@@ -102,6 +102,14 @@ class BoolDeclarationNode(StatementNode):
         self.boolean = boolean
 
 
+class DateDeclarationNode(StatementNode):
+
+    def __init__(self, id, date):
+        
+        self.id = id
+        self.date = date
+
+
 class PortfolioDeclarationNode(StatementNode):
 
     def __init__(self, id, params):
@@ -214,6 +222,11 @@ class FloatNode(AtomicNode):
 
 
 class BoolNode(AtomicNode):
+
+    def __init__(self, lex):
+        super().__init__(lex)
+
+class DateNode(AtomicNode):
 
     def __init__(self, lex):
         super().__init__(lex)

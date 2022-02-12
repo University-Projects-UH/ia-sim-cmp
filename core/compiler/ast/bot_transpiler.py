@@ -11,9 +11,11 @@ class BotTranspiler(object):
 
         ans = "from core import GridBot, RebalanceBot, SmartBot\n"
         ans += "from core import Asset\n"
+        ans += "from datetime import datetime\n"
         ans += "from core import PortfolioSdMin, PortfolioSharpeRatio\n\n"
 
         for stat in node.statements:
+            print(self.visit(stat))
             ans += self.visit(stat) + '\n'
 
         f = open("code_transpiled.py", "w")
@@ -58,6 +60,11 @@ class BotTranspiler(object):
     @visitor.when(BoolDeclarationNode)
     def visit(self, node, tabs=0):
         ans = str(node.id) + " = " + self.visit(node.boolean)
+        return ans
+
+    @visitor.when(DateDeclarationNode)
+    def visit(self, node, tabs=0):
+        ans = str(node.id) + " = datetime.strptime(\"" + self.visit(node.date) + "\", \"%Y-%m-%d\")"
         return ans
 
     @visitor.when(PortfolioDeclarationNode)
@@ -159,6 +166,11 @@ class BotTranspiler(object):
         return ans
 
     @visitor.when(VariableNode)
+    def visit(self, node, tabs=0):
+        ans = str(node.lex)
+        return ans
+
+    @visitor.when(DateNode)
     def visit(self, node, tabs=0):
         ans = str(node.lex)
         return ans

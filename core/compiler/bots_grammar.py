@@ -1,7 +1,7 @@
 from core import Grammar, Production
-from .ast.ast import ProgramNode, GridBotDeclarationNode, RebalanceBotDeclarationNode, SmartBotDeclarationNode
+from .ast.ast import DateNode, ProgramNode, GridBotDeclarationNode, RebalanceBotDeclarationNode, SmartBotDeclarationNode
 from .ast.ast import AssetDeclarationNode, AssetsDeclarationNode, PortfolioDeclarationNode
-from .ast.ast import IntDeclarationNode, BoolDeclarationNode, FloatDeclarationNode, ReAssignNode
+from .ast.ast import IntDeclarationNode, BoolDeclarationNode, FloatDeclarationNode, ReAssignNode, DateDeclarationNode
 from .ast.ast import NegateBooleanNode, ParenthesisNode
 from .ast.ast import EqualNode, NotEqualNode, GreatEqNode, GreatNode, LessEqNode, LessNode
 from .ast.ast import PrintNode, FuncCallNode
@@ -40,6 +40,7 @@ class BotGrammar:
         int_decalaration = G.add_non_terminal('<int_declaration>')
         float_declaration = G.add_non_terminal('<float_declaration>')
         bool_declaration = G.add_non_terminal('<bool_declaration>')
+        date_declaration = G.add_non_terminal('<date_declaration>')
 
         boolean = G.add_non_terminal('<boolean>')
 
@@ -81,6 +82,7 @@ class BotGrammar:
         portfolio_min_sd = G.add_terminal('portfolio_min_sd')
         portfolio_max_sharpe_ratio = G.add_terminal('portfolio_max_sharpe_ratio')
         assets = G.add_terminal('assets')
+        datet, date_type = G.add_terminals('date date_type')
 
 
         ###############################################
@@ -104,6 +106,7 @@ class BotGrammar:
         stat %= print_elem, lambda h, s: s[1]
         stat %= re_assign, lambda h, s: s[1]
         stat %= func_call, lambda h, s: s[1]
+        stat %= date_declaration, lambda h, s: s[1]
 
         grid_bot_declaration %= grid_bot + ID + assign + grid_bot + opar + elem_list + cpar, lambda h, s: GridBotDeclarationNode(s[2], s[6])
         grid_bot_declaration %= grid_bot + ID + assign + elem
@@ -124,6 +127,8 @@ class BotGrammar:
         float_declaration %= floatt + ID + assign + expression, lambda h, s: FloatDeclarationNode(s[2], s[4])
 
         bool_declaration %= boolt + ID + assign + elem, lambda h, s: BoolDeclarationNode(s[2], s[4])
+
+        date_declaration %= datet + ID + assign + expression, lambda h, s: DateDeclarationNode(s[2], s[4]) 
 
         portfolio_declaration %= portfolio + ID + assign + portfolio_min_sd + opar + elem_list + cpar, lambda h, s: PortfolioDeclarationNode(s[2], s[6])
         portfolio_declaration %= portfolio + ID + assign + portfolio_max_sharpe_ratio + opar + elem_list + cpar, lambda h, s: PortfolioDeclarationNode(s[2], s[6])
@@ -170,5 +175,6 @@ class BotGrammar:
         atom %= float_number, lambda h, s: FloatNode(s[1])
         atom %= ID, lambda h, s: VariableNode(s[1])
         atom %= func_call, lambda h, s: s[1]
+        atom %= date_type, lambda h, s: DateNode(s[1])
 
         return G

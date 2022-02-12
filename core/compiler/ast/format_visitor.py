@@ -192,3 +192,13 @@ class FormatVisitor(object):
         ans = '\t' * tabs + f'\\__VariableNode: {node.lex}'
         return f'{ans}'
 
+    @visitor.when(DateDeclarationNode)
+    def visit(self, node, tabs = 0):
+        ans = '\t' * tabs + f'\\__ DateDeclarationNode: {node.id}'
+        date = self.visit(node.date, tabs + 1)
+        return f'{ans}\n{date}'
+
+    @visitor.when(DateNode)
+    def visit(self, node, tabs = 0):
+        ans = '\t' * tabs + f'\\__DateNode: {node.lex}'
+        return f'{ans}'
