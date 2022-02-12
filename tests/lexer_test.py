@@ -1,6 +1,11 @@
 from core import Lexer, Regex
 from core import build_lexer
 
+def test_date_type():
+    lexer = build_lexer()
+    tokens = lexer("date alg = 2022-02-12")
+    assert [token.reg_type for token in tokens] == ['date', 'id', '=', 'date_type', '$']
+
 def test_lexer():
     nonzero_digits = '|'.join(str(n) for n in range(1,10))
     letters = '|'.join(chr(n) for n in range(ord('a'),ord('z')+1))
