@@ -110,6 +110,15 @@ class DateDeclarationNode(StatementNode):
         self.date = date
 
 
+class StringDeclarationNode(StatementNode):
+
+    def __init__(self, id, string):
+
+        self.id = id
+        self.string = string
+        
+
+
 # class PortfolioDeclarationNode(StatementNode):
 
 #     def __init__(self, id, params):
@@ -241,6 +250,7 @@ class BoolNode(AtomicNode):
     def __init__(self, lex):
         super().__init__(lex)
 
+
 class DateNode(AtomicNode):
 
     def __init__(self, lex):
@@ -252,3 +262,8 @@ class VariableNode(AtomicNode):
     def __init__(self, lex):
         super().__init__(lex)
 
+
+class StringNode(AtomicNode):
+
+    def __init__(self, lex):
+        super().__init__(lex)

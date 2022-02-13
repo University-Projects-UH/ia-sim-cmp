@@ -64,6 +64,12 @@ class FormatVisitor(object):
         boolean = self.visit(node.boolean, tabs + 1)
         return f'{ans}\n{boolean}'
 
+    @visitor.when(StringDeclarationNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__ StringDeclarationNode: {node.id}'
+        string = self.visit(node.string, tabs + 1)
+        return f'{ans}\n{string}'
+
     # @visitor.when(PortfolioDeclarationNode)
     # def visit(self, node, tabs=0):
     #     ans = '\t' * tabs + f'\\__ PortfolioDeclarationNode: {node.id}'
@@ -197,6 +203,11 @@ class FormatVisitor(object):
     @visitor.when(BoolNode)
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__BoolNode: {node.lex}'
+        return f'{ans}'
+
+    @visitor.when(StringNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__StringNode: {node.lex}'
         return f'{ans}'
 
     @visitor.when(VariableNode)

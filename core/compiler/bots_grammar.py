@@ -6,7 +6,8 @@ from .ast.ast import NegateBooleanNode, ParenthesisNode
 from .ast.ast import EqualNode, NotEqualNode, GreatEqNode, GreatNode, LessEqNode, LessNode
 from .ast.ast import PrintNode, FuncCallNode
 from .ast.ast import PlusNode, MinusNode, MulNode, DivNode
-from .ast.ast import IntNode, FloatNode, BoolNode, VariableNode
+from .ast.ast import IntNode, FloatNode, BoolNode, VariableNode, StringNode
+from .ast.ast import StringDeclarationNode
 
 class BotGrammar:
 
@@ -61,6 +62,8 @@ class BotGrammar:
 
         re_assign = G.add_non_terminal('<re_assign>')
 
+        string_declaration = G.add_non_terminal('<string_declaration>')
+
 
         ###############################################
         #               TERMINALS
@@ -83,6 +86,8 @@ class BotGrammar:
         portfolio_max_sharpe_ratio = G.add_terminal('portfolio_max_sharpe_ratio')
         assets = G.add_terminal('assets')
         datet, date_type = G.add_terminals('date date_type')
+        stringt = G.add_terminal('string')
+        string_exp = G.add_terminal('string_exp')
 
 
         ###############################################
@@ -107,6 +112,10 @@ class BotGrammar:
         stat %= re_assign, lambda h, s: s[1]
         stat %= func_call, lambda h, s: s[1]
         stat %= date_declaration, lambda h, s: s[1]
+        stat %= string_declaration, lambda h, s: s[1]
+
+        string_declaration %= stringt + ID + assign + string_exp, lambda h, s: StringDeclarationNode(s[2], StringNode(s[4]))
+        string_declaration %= stringt + ID + assign + ID, lambda h, s: StringDeclarationNode(s[2], VariableNode(s[4]))
 
         grid_bot_declaration %= grid_bot + ID + assign + grid_bot + opar + elem_list + cpar, lambda h, s: GridBotDeclarationNode(s[2], s[6])
         grid_bot_declaration %= grid_bot + ID + assign + ID, lambda h, s: GridBotDeclarationNode(s[2], VariableNode(s[4]))
@@ -155,6 +164,7 @@ class BotGrammar:
         elem %= expression, lambda h, s: s[1]
         elem %= boolean, lambda h, s: s[1]
         elem %= array, lambda h, s: s[1]
+        elem %= string_exp, lambda h, s: StringNode(s[1])
 
         print_elem %= printt + elem, lambda h, s: PrintNode(s[2])
 
