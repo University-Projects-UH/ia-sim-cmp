@@ -64,9 +64,21 @@ class FormatVisitor(object):
         boolean = self.visit(node.boolean, tabs + 1)
         return f'{ans}\n{boolean}'
 
-    @visitor.when(PortfolioDeclarationNode)
+    # @visitor.when(PortfolioDeclarationNode)
+    # def visit(self, node, tabs=0):
+    #     ans = '\t' * tabs + f'\\__ PortfolioDeclarationNode: {node.id}'
+    #     params = '\n'.join(self.visit(param, tabs + 1) for param in node.params)
+    #     return f'{ans}\n{params}'
+
+    @visitor.when(PortfolioMSDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__ PortfolioDeclarationNode: {node.id}'
+        ans = '\t' * tabs + f'\\__ PortfolioMSDeclarationNode: {node.id}'
+        params = '\n'.join(self.visit(param, tabs + 1) for param in node.params)
+        return f'{ans}\n{params}'
+
+    @visitor.when(PortfolioMSRDeclarationNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__ PortfolioMSRDeclarationNode: {node.id}'
         params = '\n'.join(self.visit(param, tabs + 1) for param in node.params)
         return f'{ans}\n{params}'
 

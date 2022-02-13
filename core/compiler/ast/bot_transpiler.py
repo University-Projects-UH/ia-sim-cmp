@@ -67,7 +67,17 @@ class BotTranspiler(object):
         ans = str(node.id) + " = datetime.strptime(\"" + self.visit(node.date) + "\", \"%Y-%m-%d\")"
         return ans
 
-    @visitor.when(PortfolioDeclarationNode)
+    # @visitor.when(PortfolioDeclarationNode)
+    # def visit(self, node, tabs=0):
+    #     ans = str(node.id) + " = " + "[" + ", ".join(self.visit(param) for param in node.params) + "]"
+    #     return ans
+
+    @visitor.when(PortfolioMSDeclarationNode)
+    def visit(self, node, tabs=0):
+        ans = str(node.id) + " = " + "[" + ", ".join(self.visit(param) for param in node.params) + "]"
+        return ans
+
+    @visitor.when(PortfolioMSRDeclarationNode)
     def visit(self, node, tabs=0):
         ans = str(node.id) + " = " + "[" + ", ".join(self.visit(param) for param in node.params) + "]"
         return ans

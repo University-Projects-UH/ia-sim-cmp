@@ -1,6 +1,6 @@
 from core import Grammar, Production
 from .ast.ast import DateNode, ProgramNode, GridBotDeclarationNode, RebalanceBotDeclarationNode, SmartBotDeclarationNode
-from .ast.ast import AssetDeclarationNode, AssetsDeclarationNode, PortfolioDeclarationNode
+from .ast.ast import AssetDeclarationNode, AssetsDeclarationNode, PortfolioMSDeclarationNode, PortfolioMSRDeclarationNode
 from .ast.ast import IntDeclarationNode, BoolDeclarationNode, FloatDeclarationNode, ReAssignNode, DateDeclarationNode
 from .ast.ast import NegateBooleanNode, ParenthesisNode
 from .ast.ast import EqualNode, NotEqualNode, GreatEqNode, GreatNode, LessEqNode, LessNode
@@ -130,8 +130,8 @@ class BotGrammar:
 
         date_declaration %= datet + ID + assign + expression, lambda h, s: DateDeclarationNode(s[2], s[4]) 
 
-        portfolio_declaration %= portfolio + ID + assign + portfolio_min_sd + opar + elem_list + cpar, lambda h, s: PortfolioDeclarationNode(s[2], s[6])
-        portfolio_declaration %= portfolio + ID + assign + portfolio_max_sharpe_ratio + opar + elem_list + cpar, lambda h, s: PortfolioDeclarationNode(s[2], s[6])
+        portfolio_declaration %= portfolio + ID + assign + portfolio_min_sd + opar + elem_list + cpar, lambda h, s: PortfolioMSDeclarationNode(s[2], s[6])
+        portfolio_declaration %= portfolio + ID + assign + portfolio_max_sharpe_ratio + opar + elem_list + cpar, lambda h, s: PortfolioMSRDeclarationNode(s[2], s[6])
         portfolio_declaration %= portfolio + ID + assign + elem
 
         re_assign %= ID + assign + elem, lambda h, s: ReAssignNode(s[1], s[3])
@@ -143,7 +143,7 @@ class BotGrammar:
         boolean %= expression + great_eq + expression, lambda h, s: GreatEqNode(s[1], s[3])
         boolean %= expression + less_eq + expression, lambda h, s: LessEqNode(s[1], s[3])
         boolean %= expression + less + expression, lambda h, s: LessNode(s[1], s[3])
-        boolean %= expression + great + expression, lambda h, s: GreatEqNode(s[1], s[3])
+        boolean %= expression + great + expression, lambda h, s: GreatNode(s[1], s[3])
         boolean %= truet, lambda h, s: BoolNode(s[1])
         boolean %= falset, lambda h, s: BoolNode(s[1])
 

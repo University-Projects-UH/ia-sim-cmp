@@ -110,7 +110,22 @@ class DateDeclarationNode(StatementNode):
         self.date = date
 
 
-class PortfolioDeclarationNode(StatementNode):
+# class PortfolioDeclarationNode(StatementNode):
+
+#     def __init__(self, id, params):
+
+#         self.id = id
+#         self.params = params
+
+class PortfolioMSDeclarationNode(StatementNode):
+
+    def __init__(self, id, params):
+
+        self.id = id
+        self.params = params
+
+
+class PortfolioMSRDeclarationNode(StatementNode):
 
     def __init__(self, id, params):
 
