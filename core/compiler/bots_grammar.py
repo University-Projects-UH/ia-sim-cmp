@@ -109,13 +109,13 @@ class BotGrammar:
         stat %= date_declaration, lambda h, s: s[1]
 
         grid_bot_declaration %= grid_bot + ID + assign + grid_bot + opar + elem_list + cpar, lambda h, s: GridBotDeclarationNode(s[2], s[6])
-        grid_bot_declaration %= grid_bot + ID + assign + elem
+        grid_bot_declaration %= grid_bot + ID + assign + ID, lambda h, s: GridBotDeclarationNode(s[2], VariableNode(s[4]))
 
         rebalance_bot_declaration %= rebalance_bot + ID + assign + rebalance_bot + opar + elem_list + cpar, lambda h, s: RebalanceBotDeclarationNode(s[2], s[6])
-        rebalance_bot_declaration %= rebalance_bot + ID + assign + elem
+        rebalance_bot_declaration %= rebalance_bot + ID + assign + ID, lambda h, s: RebalanceBotDeclarationNode(s[2], VariableNode(s[4]))
 
         smart_bot_declaration %= smart_bot + ID + assign + smart_bot + opar + elem_list + cpar, lambda h, s: SmartBotDeclarationNode(s[2], s[6])
-        smart_bot_declaration %= smart_bot + ID + assign + elem
+        smart_bot_declaration %= smart_bot + ID + assign + ID, lambda h, s: SmartBotDeclarationNode(s[2], VariableNode(s[4]))
 
         asset_declaration %= asset + ID + assign + asset + opar + ID + cpar, lambda h, s: AssetDeclarationNode(s[2], s[6])
         asset_declaration %= asset + ID + assign + elem
