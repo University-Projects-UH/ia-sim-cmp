@@ -1,6 +1,6 @@
 from core import Grammar, Production
 from .ast.ast import DateNode, ProgramNode, GridBotDeclarationNode, RebalanceBotDeclarationNode, SmartBotDeclarationNode
-from .ast.ast import AssetDeclarationNode, AssetsDeclarationNode, PortfolioMSDeclarationNode, PortfolioMSRDeclarationNode
+from .ast.ast import AssetDeclarationNode
 from .ast.ast import IntDeclarationNode, BoolDeclarationNode, FloatDeclarationNode, ReAssignNode, DateDeclarationNode
 from .ast.ast import NegateBooleanNode, ParenthesisNode
 from .ast.ast import EqualNode, NotEqualNode, GreatEqNode, GreatNode, LessEqNode, LessNode
@@ -83,10 +83,6 @@ class BotGrammar:
         plus, minus, div, mul = G.add_terminals('+ - / *')
         ID = G.add_terminal('id')
         int_number, float_number = G.add_terminals('int_number float_number')
-        portfolio = G.add_terminal('portfolio')
-        portfolio_min_sd = G.add_terminal('portfolio_min_sd')
-        portfolio_max_sharpe_ratio = G.add_terminal('portfolio_max_sharpe_ratio')
-        assets = G.add_terminal('assets')
         datet, date_type = G.add_terminals('date date_type')
         stringt = G.add_terminal('string')
         string_exp = G.add_terminal('string_exp')
@@ -130,10 +126,8 @@ class BotGrammar:
         smart_bot_declaration %= smart_bot + ID + assign + smart_bot + opar + elem_list + cpar, lambda h, s: SmartBotDeclarationNode(s[2], s[6])
         smart_bot_declaration %= smart_bot + ID + assign + ID, lambda h, s: SmartBotDeclarationNode(s[2], VariableNode(s[4]))
 
-        asset_declaration %= asset + ID + assign + asset + opar + ID + cpar, lambda h, s: AssetDeclarationNode(s[2], s[6])
+        asset_declaration %= asset + ID + assign + func_call, lambda h, s: AssetDeclarationNode(s[2], s[4])
         asset_declaration %= asset + ID + assign + ID, lambda h, s: AssetDeclarationNode(s[2], VariableNode(s[4]))
-
-        #asset_array_declaration %= assets + ID + assign + elem, lambda h, s: AssetsDeclarationNode(s[2], s[4])
 
         int_decalaration %= intt + ID + assign + expression, lambda h, s: IntDeclarationNode(s[2], s[4])
 
@@ -142,10 +136,6 @@ class BotGrammar:
         bool_declaration %= boolt + ID + assign + elem, lambda h, s: BoolDeclarationNode(s[2], s[4])
 
         date_declaration %= datet + ID + assign + expression, lambda h, s: DateDeclarationNode(s[2], s[4]) 
-
-        #portfolio_declaration %= portfolio + ID + assign + portfolio_min_sd + opar + elem_list + cpar, lambda h, s: PortfolioMSDeclarationNode(s[2], s[6])
-        #portfolio_declaration %= portfolio + ID + assign + portfolio_max_sharpe_ratio + opar + elem_list + cpar, lambda h, s: PortfolioMSRDeclarationNode(s[2], s[6])
-        #portfolio_declaration %= portfolio + ID + assign + elem
 
         array_declaration %= arrayt + ID + assign + array, lambda h, s: ArrayDeclarationNode(s[2], s[4])
         array_declaration %= arrayt + ID + assign + func_call, lambda h, s: ArrayDeclarationNode(s[2], s[4])

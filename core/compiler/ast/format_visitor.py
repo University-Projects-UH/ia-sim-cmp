@@ -40,12 +40,6 @@ class FormatVisitor(object):
         ans = '\t' * tabs + f'\\__AssetDeclarationNode: {node.id} = {node.asset}'
         return f'{ans}'
 
-    @visitor.when(AssetsDeclarationNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__AssetsDeclarationNode: {node.id}'
-        assets = '\n'.join(self.visit(asset, tabs + 1) for asset in node.assets)
-        return f'{ans}'
-
     @visitor.when(IntDeclarationNode)
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__ IntDeclarationNode: {node.id}'
@@ -77,24 +71,6 @@ class FormatVisitor(object):
             params = '\n'.join(self.visit(elem, tabs + 1) for elem in node.elements)
         else:
             params = self.visit(node.elements, tabs + 1)
-        return f'{ans}\n{params}'
-
-    # @visitor.when(PortfolioDeclarationNode)
-    # def visit(self, node, tabs=0):
-    #     ans = '\t' * tabs + f'\\__ PortfolioDeclarationNode: {node.id}'
-    #     params = '\n'.join(self.visit(param, tabs + 1) for param in node.params)
-    #     return f'{ans}\n{params}'
-
-    @visitor.when(PortfolioMSDeclarationNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__ PortfolioMSDeclarationNode: {node.id}'
-        params = '\n'.join(self.visit(param, tabs + 1) for param in node.params)
-        return f'{ans}\n{params}'
-
-    @visitor.when(PortfolioMSRDeclarationNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__ PortfolioMSRDeclarationNode: {node.id}'
-        params = '\n'.join(self.visit(param, tabs + 1) for param in node.params)
         return f'{ans}\n{params}'
 
     @visitor.when(ReAssignNode)

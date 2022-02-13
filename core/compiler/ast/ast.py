@@ -70,14 +70,6 @@ class AssetDeclarationNode(StatementNode):
         self.asset = asset
 
 
-class AssetsDeclarationNode(StatementNode):
-
-    def __init__(self, id, assets):
-
-        self.id = id
-        self.assets = assets
-
-
 class IntDeclarationNode(StatementNode):
 
     def __init__(self, id, expression):
@@ -116,30 +108,6 @@ class StringDeclarationNode(StatementNode):
 
         self.id = id
         self.string = string
-        
-
-
-# class PortfolioDeclarationNode(StatementNode):
-
-#     def __init__(self, id, params):
-
-#         self.id = id
-#         self.params = params
-
-class PortfolioMSDeclarationNode(StatementNode):
-
-    def __init__(self, id, params):
-
-        self.id = id
-        self.params = params
-
-
-class PortfolioMSRDeclarationNode(StatementNode):
-
-    def __init__(self, id, params):
-
-        self.id = id
-        self.params = params
 
 
 class ArrayDeclarationNode(StatementNode):

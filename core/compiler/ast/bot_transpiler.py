@@ -42,11 +42,6 @@ class BotTranspiler(object):
         ans = str(node.id) + " = " + "Asset(" + node.asset + ")"
         return ans
 
-    @visitor.when(AssetsDeclarationNode)
-    def visit(self, node, tabs=0):
-        ans = str(node.id) + " = " + "[" + ", ".join(self.visit(asset) for asset in node.assets) + "]"
-        return ans
-
     @visitor.when(IntDeclarationNode)
     def visit(self, node, tabs=0):
         ans = str(node.id) + " = " + self.visit(node.expression)
@@ -79,21 +74,6 @@ class BotTranspiler(object):
             ans += "[" + ", ".join(self.visit(elem) for elem in node.elements) + "]"
         else:
             ans += self.visit(node.elements)
-        return ans
-
-    # @visitor.when(PortfolioDeclarationNode)
-    # def visit(self, node, tabs=0):
-    #     ans = str(node.id) + " = " + "[" + ", ".join(self.visit(param) for param in node.params) + "]"
-    #     return ans
-
-    @visitor.when(PortfolioMSDeclarationNode)
-    def visit(self, node, tabs=0):
-        ans = str(node.id) + " = " + "[" + ", ".join(self.visit(param) for param in node.params) + "]"
-        return ans
-
-    @visitor.when(PortfolioMSRDeclarationNode)
-    def visit(self, node, tabs=0):
-        ans = str(node.id) + " = " + "[" + ", ".join(self.visit(param) for param in node.params) + "]"
         return ans
 
     @visitor.when(ReAssignNode)
