@@ -1,15 +1,1 @@
-int x = 1;
-
-date d = 2012-11-11;
-
-array a = [1,2,3];
-
-x = 3;
-
-x = x + x;
-
-print(x);
-
-int y = x * 5;
-
-print(y);
+asset btc = CreateAsset("btc");

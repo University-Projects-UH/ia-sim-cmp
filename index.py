@@ -3,6 +3,7 @@ from core import BotGrammar
 from core.compiler.parser.parser_lr import LR1Parser
 from core.compiler.parser.parser_shift_reduce import evaluate_reverse_parse
 from core.compiler.ast.bot_transpiler import BotTranspiler
+from core.compiler.ast.semantic_check import SemanticChecker
 
 import sys
 import string
@@ -21,6 +22,8 @@ def run_project():
 
     lexer = build_lexer()
     tokens = lexer(code)
+    print([token.reg_exp for token in tokens])
+    print([token.reg_type for token in tokens])
     # print([(tok.reg_exp, tok.reg_type) for tok in tokens])
 
     G = BotGrammar().grammar
@@ -32,6 +35,13 @@ def run_project():
 
     right_parse, operations = parser_lr(token_types, True)
     ast = evaluate_reverse_parse(right_parse, operations, tokens)
+
+    semantic = SemanticChecker()
+    errors = semantic.visit(ast)
+    if(len(errors) > 0):
+        print("Errores encontrados: ")
+        print(errors)
+        return
 
     transpiler = BotTranspiler()
     transpiler.visit(ast)
