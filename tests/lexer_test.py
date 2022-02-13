@@ -1,10 +1,16 @@
 from core import Lexer, Regex
 from core import build_lexer
 
-def test_date_type():
+def test_lexer_with_our_regexes():
     lexer = build_lexer()
+    # date recognize
     tokens = lexer("date alg = 2022-02-12")
     assert [token.reg_type for token in tokens] == ['date', 'id', '=', 'date_type', '$']
+
+    # string recognize
+    tokens = lexer('string alg = "<sto 3s 1 ;strIng"')
+    assert [token.reg_type for token in tokens] == ['string', 'id', '=', 'string_exp', '$']
+    assert [token.reg_exp for token in tokens] == ['string', 'alg', '=', '"<sto 3s 1 ;strIng"', '$']
 
 def test_lexer():
     nonzero_digits = '|'.join(str(n) for n in range(1,10))
