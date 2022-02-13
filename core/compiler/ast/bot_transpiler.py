@@ -72,6 +72,15 @@ class BotTranspiler(object):
         ans = str(node.id) + " = " + self.visit(node.string)
         return ans
 
+    @visitor.when(ArrayDeclarationNode)
+    def visit(self, node, tabs=0):
+        ans = str(node.id) + " = "
+        if isinstance(node.elements, list):
+            ans += "[" + ", ".join(self.visit(elem) for elem in node.elements) + "]"
+        else:
+            ans += self.visit(node.elements)
+        return ans
+
     # @visitor.when(PortfolioDeclarationNode)
     # def visit(self, node, tabs=0):
     #     ans = str(node.id) + " = " + "[" + ", ".join(self.visit(param) for param in node.params) + "]"
@@ -139,9 +148,9 @@ class BotTranspiler(object):
 
     @visitor.when(FuncCallNode)
     def visit(self, node, tabs=0):
-        ans = self.visit(node.id) + "( "
+        ans = str(node.lex) + "( "
         for param in node.params:
-            ans += self.visit(param) + ", "
+            ans += ", ".join(self.visit(param) for param in node.params)
         ans += " )"
         return ans
 

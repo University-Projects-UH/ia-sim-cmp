@@ -31,10 +31,11 @@ KEYWORDS = [
     'False',
     'portfolio',
     'portfolio_max_sharpe_ratio',
-    'portfolio_min_sd'
+    'portfolio_min_sd',
+    'array'
 ]
 SYMBOLS = [
-    '+', '-', '/', '*', '(', ')', '!',
+    '+', '-', '/', '*', '(', ')', '!', ',',
     '<', '>', '[', ']', '<=', '=>', '=', '==', ';'
 ]
 symbols = ['+', " ", '-', '/', '*', '(', ')', '!', '<', '>', '[', ']', ';', '=']

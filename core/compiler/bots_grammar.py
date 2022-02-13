@@ -7,7 +7,7 @@ from .ast.ast import EqualNode, NotEqualNode, GreatEqNode, GreatNode, LessEqNode
 from .ast.ast import PrintNode, FuncCallNode
 from .ast.ast import PlusNode, MinusNode, MulNode, DivNode
 from .ast.ast import IntNode, FloatNode, BoolNode, VariableNode, StringNode
-from .ast.ast import StringDeclarationNode
+from .ast.ast import StringDeclarationNode, ArrayDeclarationNode
 
 class BotGrammar:
 
@@ -64,6 +64,8 @@ class BotGrammar:
 
         string_declaration = G.add_non_terminal('<string_declaration>')
 
+        array_declaration = G.add_non_terminal('<array_declaration>')
+
 
         ###############################################
         #               TERMINALS
@@ -88,6 +90,7 @@ class BotGrammar:
         datet, date_type = G.add_terminals('date date_type')
         stringt = G.add_terminal('string')
         string_exp = G.add_terminal('string_exp')
+        arrayt = G.add_terminal('array')
 
 
         ###############################################
@@ -113,6 +116,7 @@ class BotGrammar:
         stat %= func_call, lambda h, s: s[1]
         stat %= date_declaration, lambda h, s: s[1]
         stat %= string_declaration, lambda h, s: s[1]
+        stat %= array_declaration, lambda h, s: s[1]
 
         string_declaration %= stringt + ID + assign + string_exp, lambda h, s: StringDeclarationNode(s[2], StringNode(s[4]))
         string_declaration %= stringt + ID + assign + ID, lambda h, s: StringDeclarationNode(s[2], VariableNode(s[4]))
@@ -127,9 +131,9 @@ class BotGrammar:
         smart_bot_declaration %= smart_bot + ID + assign + ID, lambda h, s: SmartBotDeclarationNode(s[2], VariableNode(s[4]))
 
         asset_declaration %= asset + ID + assign + asset + opar + ID + cpar, lambda h, s: AssetDeclarationNode(s[2], s[6])
-        asset_declaration %= asset + ID + assign + elem
+        asset_declaration %= asset + ID + assign + ID, lambda h, s: AssetDeclarationNode(s[2], VariableNode(s[4]))
 
-        asset_array_declaration %= assets + ID + assign + elem, lambda h, s: AssetsDeclarationNode(s[2], s[4])
+        #asset_array_declaration %= assets + ID + assign + elem, lambda h, s: AssetsDeclarationNode(s[2], s[4])
 
         int_decalaration %= intt + ID + assign + expression, lambda h, s: IntDeclarationNode(s[2], s[4])
 
@@ -139,9 +143,13 @@ class BotGrammar:
 
         date_declaration %= datet + ID + assign + expression, lambda h, s: DateDeclarationNode(s[2], s[4]) 
 
-        portfolio_declaration %= portfolio + ID + assign + portfolio_min_sd + opar + elem_list + cpar, lambda h, s: PortfolioMSDeclarationNode(s[2], s[6])
-        portfolio_declaration %= portfolio + ID + assign + portfolio_max_sharpe_ratio + opar + elem_list + cpar, lambda h, s: PortfolioMSRDeclarationNode(s[2], s[6])
-        portfolio_declaration %= portfolio + ID + assign + elem
+        #portfolio_declaration %= portfolio + ID + assign + portfolio_min_sd + opar + elem_list + cpar, lambda h, s: PortfolioMSDeclarationNode(s[2], s[6])
+        #portfolio_declaration %= portfolio + ID + assign + portfolio_max_sharpe_ratio + opar + elem_list + cpar, lambda h, s: PortfolioMSRDeclarationNode(s[2], s[6])
+        #portfolio_declaration %= portfolio + ID + assign + elem
+
+        array_declaration %= arrayt + ID + assign + array, lambda h, s: ArrayDeclarationNode(s[2], s[4])
+        array_declaration %= arrayt + ID + assign + func_call, lambda h, s: ArrayDeclarationNode(s[2], s[4])
+        array_declaration %= arrayt + ID + assign + ID, lambda h, s: ArrayDeclarationNode(s[2], VariableNode(s[4]))
 
         re_assign %= ID + assign + elem, lambda h, s: ReAssignNode(s[1], s[3])
 

@@ -142,6 +142,14 @@ class PortfolioMSRDeclarationNode(StatementNode):
         self.params = params
 
 
+class ArrayDeclarationNode(StatementNode):
+
+    def __init__(self, id, elements):
+
+        self.id = id
+        self.elements = elements
+
+
 class ReAssignNode(StatementNode):
 
     def __init__(self, id, value):
