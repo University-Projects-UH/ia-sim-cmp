@@ -9,7 +9,7 @@ def test_answer():
         'Open' : [1500, 1500, 1300, 1100, 900, 1400, 850, 1900, 2500]
     }
 
-    my_asset = Asset("Testercoin", None, pd.DataFrame(data))
+    my_asset = Asset("Testercoin", pd.DataFrame(data))
 
     smart_bot = SmartBot("TesterBot", 800, 2700, 100, [my_asset])
 
@@ -35,5 +35,5 @@ def test_answer():
             assert round(price * volumen) == smart_bot.investment / smart_bot.max_open_orders
         else:
             open_orders -= 1
-        
+
         assert open_orders <= smart_bot.max_open_orders

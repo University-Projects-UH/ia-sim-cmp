@@ -3,9 +3,20 @@ from core import BotGrammar
 from core.compiler.parser.parser_lr import LR1Parser
 from core.compiler.parser.parser_shift_reduce import evaluate_reverse_parse
 from core.compiler.ast.bot_transpiler import BotTranspiler
+from core.compiler.ast.semantic_check import SemanticChecker
+from os import walk
 
 import sys
 import string
+
+def get_assets_availables():
+    source_path = "core/asset/assets_data"
+    text_arr = []
+    for _, _, filenames in walk(source_path):
+        text_arr.extend(filenames)
+
+    return text_arr
+
 
 def run_project():
     try:
@@ -14,6 +25,8 @@ def run_project():
         print("Es necesario que se ponga \"python index.py name_codigo_a_compilar\"")
         print("Ejemplo: \"python index.py code.botlang\"")
         sys.exit()
+
+    assets_availables = get_assets_availables()
 
     code = open(file_name,'r').read()
 
@@ -32,6 +45,13 @@ def run_project():
 
     right_parse, operations = parser_lr(token_types, True)
     ast = evaluate_reverse_parse(right_parse, operations, tokens)
+
+    semantic = SemanticChecker(assets_availables)
+    errors = semantic.visit(ast)
+    if(len(errors) > 0):
+        print("Errores encontrados: ")
+        print(errors)
+        return
 
     transpiler = BotTranspiler()
     transpiler.visit(ast)

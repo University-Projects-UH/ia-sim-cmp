@@ -1,6 +1,12 @@
 from . import visitor as visitor
 from .ast import *
 
+parse_function = {
+    "CreateAsset": lambda params: f"Asset({params})",
+    "PortfolioMSR": lambda params: f"PortfolioSharpeRatio({params}).run()",
+    "PortfolioSDMin": lambda params: f"PortfolioSdMin({params}).run()"
+}
+
 class BotTranspiler(object):
     @visitor.on('node')
     def visit(self, node, tabs):
@@ -11,9 +17,11 @@ class BotTranspiler(object):
 
         ans = "from core import GridBot, RebalanceBot, SmartBot\n"
         ans += "from core import Asset\n"
+        ans += "from datetime import datetime\n"
         ans += "from core import PortfolioSdMin, PortfolioSharpeRatio\n\n"
 
         for stat in node.statements:
+            print(self.visit(stat))
             ans += self.visit(stat) + '\n'
 
         f = open("code_transpiled.py", "w")
@@ -22,27 +30,35 @@ class BotTranspiler(object):
 
     @visitor.when(GridBotDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = str(node.id) + " = " + "GridBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
+        if(type(node.params).__name__ == "VariableNode"):
+            ans = str(node.id) + " = " + str(node.params.lex)
+        else:
+            ans = str(node.id) + " = " + "GridBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
         return ans
 
     @visitor.when(RebalanceBotDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = str(node.id) + " = " + "RebalanceBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
+        if(type(node.params).__name__ == "VariableNode"):
+            ans = str(node.id) + " = " + str(node.params.lex)
+        else:
+            ans = str(node.id) + " = " + "RebalanceBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
         return ans
 
     @visitor.when(SmartBotDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = str(node.id) + " = " + "SmartBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
+        if(type(node.params).__name__ == "VariableNode"):
+            ans = str(node.id) + " = " + str(node.params.lex)
+        else:
+            ans = str(node.id) + " = " + "SmartBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
         return ans
 
     @visitor.when(AssetDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = str(node.id) + " = " + "Asset(" + node.asset + ")"
-        return ans
-
-    @visitor.when(AssetsDeclarationNode)
-    def visit(self, node, tabs=0):
-        ans = str(node.id) + " = " + "[" + ", ".join(self.visit(asset) for asset in node.assets) + "]"
+        ans = "Error declarando asset"
+        if(type(node.asset).__name__ == "VariableNode"):
+            ans = str(node.id) + " = " + str(node.asset.lex)
+        elif(type(node.asset).__name__ == "FuncCallNode"):
+            ans = str(node.id) + " = " + "Asset(" + ", ".join([self.visit(param) for param in node.asset.params]) + ")"
         return ans
 
     @visitor.when(IntDeclarationNode)
@@ -60,9 +76,24 @@ class BotTranspiler(object):
         ans = str(node.id) + " = " + self.visit(node.boolean)
         return ans
 
-    @visitor.when(PortfolioDeclarationNode)
+    @visitor.when(DateDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = str(node.id) + " = " + "[" + ", ".join(self.visit(param) for param in node.params) + "]"
+        ans = str(node.id) + " = " + self.visit(node.lex)
+        return ans
+
+    @visitor.when(StringDeclarationNode)
+    def visit(self, node, tabs=0):
+        ans = str(node.id) + " = " + self.visit(node.string)
+        return ans
+
+    @visitor.when(ArrayDeclarationNode)
+    def visit(self, node, tabs=0):
+        ans = str(node.id) + " = " + self.visit(node.elements)
+        return ans
+
+    @visitor.when(ArrayNode)
+    def visit(self, node, tabs=0):
+        ans = "[" + ", ".join(self.visit(elem) for elem in node.elements) + "]"
         return ans
 
     @visitor.when(ReAssignNode)
@@ -117,10 +148,7 @@ class BotTranspiler(object):
 
     @visitor.when(FuncCallNode)
     def visit(self, node, tabs=0):
-        ans = self.visit(node.id) + "( "
-        for param in node.params:
-            ans += self.visit(param) + ", "
-        ans += " )"
+        ans = parse_function[node.lex](", ".join(self.visit(param) for param in node.params))
         return ans
 
     @visitor.when(PlusNode)
@@ -145,12 +173,12 @@ class BotTranspiler(object):
 
     @visitor.when(IntNode)
     def visit(self, node, tabs=0):
-        ans = str(node.lex)
+        ans = ("(-" if node.neg else "") + str(node.lex) + (")" if node.neg else "")
         return ans
 
     @visitor.when(FloatNode)
     def visit(self, node, tabs=0):
-        ans = str(node.lex)
+        ans = ("(-" if node.neg else "") + str(node.lex) + (")" if node.neg else "")
         return ans
 
     @visitor.when(BoolNode)
@@ -159,6 +187,16 @@ class BotTranspiler(object):
         return ans
 
     @visitor.when(VariableNode)
+    def visit(self, node, tabs=0):
+        ans = str(node.lex)
+        return ans
+
+    @visitor.when(DateNode)
+    def visit(self, node, tabs=0):
+        ans = "datetime.strptime(\"" + node.lex + "\", \"%Y-%m-%d\")"
+        return ans
+
+    @visitor.when(StringNode)
     def visit(self, node, tabs=0):
         ans = str(node.lex)
         return ans

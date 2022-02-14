@@ -40,12 +40,6 @@ class FormatVisitor(object):
         ans = '\t' * tabs + f'\\__AssetDeclarationNode: {node.id} = {node.asset}'
         return f'{ans}'
 
-    @visitor.when(AssetsDeclarationNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__AssetsDeclarationNode: {node.id}'
-        assets = '\n'.join(self.visit(asset, tabs + 1) for asset in node.assets)
-        return f'{ans}'
-
     @visitor.when(IntDeclarationNode)
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__ IntDeclarationNode: {node.id}'
@@ -64,11 +58,23 @@ class FormatVisitor(object):
         boolean = self.visit(node.boolean, tabs + 1)
         return f'{ans}\n{boolean}'
 
-    @visitor.when(PortfolioDeclarationNode)
+    @visitor.when(StringDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__ PortfolioDeclarationNode: {node.id}'
-        params = '\n'.join(self.visit(param, tabs + 1) for param in node.params)
+        ans = '\t' * tabs + f'\\__ StringDeclarationNode: {node.id}'
+        string = self.visit(node.string, tabs + 1)
+        return f'{ans}\n{string}'
+
+    @visitor.when(ArrayDeclarationNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__ ArrayDeclarationNode: {node.id}'
+        params = self.visit(node.elements, tabs + 1)
         return f'{ans}\n{params}'
+
+    @visitor.when(ArrayNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__ ArrayNode'
+        elements = '\n'.join(self.visit(elem, tabs + 1) for elem in node.elements)
+        return f'{ans}\n{elements}'
 
     @visitor.when(ReAssignNode)
     def visit(self, node, tabs=0):
@@ -174,12 +180,12 @@ class FormatVisitor(object):
 
     @visitor.when(IntNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__IntNode: {node.lex}'
+        ans = '\t' * tabs + f'\\__IntNode: {"-" if node.neg else ""}{node.lex}'
         return f'{ans}'
 
     @visitor.when(FloatNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__FloatNode: {node.lex}'
+        ans = '\t' * tabs + f'\\__FloatNode: {"-" if node.neg else ""}{node.lex}'
         return f'{ans}'
 
     @visitor.when(BoolNode)
@@ -187,8 +193,23 @@ class FormatVisitor(object):
         ans = '\t' * tabs + f'\\__BoolNode: {node.lex}'
         return f'{ans}'
 
+    @visitor.when(StringNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__StringNode: {node.lex}'
+        return f'{ans}'
+
     @visitor.when(VariableNode)
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__VariableNode: {node.lex}'
         return f'{ans}'
 
+    @visitor.when(DateDeclarationNode)
+    def visit(self, node, tabs = 0):
+        ans = '\t' * tabs + f'\\__ DateDeclarationNode: {node.id}'
+        date = self.visit(node.date, tabs + 1)
+        return f'{ans}\n{date}'
+
+    @visitor.when(DateNode)
+    def visit(self, node, tabs = 0):
+        ans = '\t' * tabs + f'\\__DateNode: {node.lex}'
+        return f'{ans}'

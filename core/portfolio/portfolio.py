@@ -3,8 +3,7 @@ import pandas as pd
 import numpy as np
 
 class Portfolio():
-    def __init__(self, name, date, assets_array):
-        self.name = name
+    def __init__(self, date, assets_array):
         self.date = date
         self.assets_array = assets_array
 
@@ -18,12 +17,13 @@ class Portfolio():
 
     def create_new_df(self, low_date):
         new_df = { }
-        for asset in self.assets_array:
-            new_df[asset.name] = []
+        for index in range(len(self.assets_array)):
+            new_df[index] = []
+
         while(low_date <= self.date):
-            for asset in self.assets_array:
+            for index, asset in enumerate(self.assets_array):
                 price_at_date = asset.get_close_price_by_date(low_date)
-                new_df[asset.name].append(price_at_date)
+                new_df[index].append(price_at_date)
 
             low_date += datetime.timedelta(days = 1)
 

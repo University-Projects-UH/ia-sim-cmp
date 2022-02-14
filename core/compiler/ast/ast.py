@@ -30,7 +30,7 @@ class AtomicNode(ExpressionNode):
 
 class BinaryNode(ExpressionNode):
 
-    def __init__(self, right, left) -> None:
+    def __init__(self, left, right) -> None:
 
         self.right = right
         self.left = left
@@ -70,14 +70,6 @@ class AssetDeclarationNode(StatementNode):
         self.asset = asset
 
 
-class AssetsDeclarationNode(StatementNode):
-
-    def __init__(self, id, assets):
-
-        self.id = id
-        self.assets = assets
-
-
 class IntDeclarationNode(StatementNode):
 
     def __init__(self, id, expression):
@@ -102,12 +94,33 @@ class BoolDeclarationNode(StatementNode):
         self.boolean = boolean
 
 
-class PortfolioDeclarationNode(StatementNode):
+class DateDeclarationNode(StatementNode):
 
-    def __init__(self, id, params):
+    def __init__(self, id, date):
+        
+        self.id = id
+        self.date = date
+
+
+class StringDeclarationNode(StatementNode):
+
+    def __init__(self, id, string):
 
         self.id = id
-        self.params = params
+        self.string = string
+
+
+class ArrayDeclarationNode(StatementNode):
+
+    def __init__(self, id, elements):
+
+        self.id = id
+        self.elements = elements
+
+class ArrayNode(Node):
+
+    def __init__(self, elements):
+        self.elements = elements
 
 
 class ReAssignNode(StatementNode):
@@ -203,17 +216,27 @@ class DivNode(BinaryNode):
 
 class IntNode(AtomicNode):
 
-    def __init__(self, lex):
+    def __init__(self, lex, neg=False):
+
         super().__init__(lex)
+        self.neg = neg
 
 
 class FloatNode(AtomicNode):
 
+    def __init__(self, lex, neg=False):
+
+        super().__init__(lex)
+        self.neg = neg
+
+
+class BoolNode(AtomicNode):
+
     def __init__(self, lex):
         super().__init__(lex)
 
 
-class BoolNode(AtomicNode):
+class DateNode(AtomicNode):
 
     def __init__(self, lex):
         super().__init__(lex)
@@ -224,3 +247,8 @@ class VariableNode(AtomicNode):
     def __init__(self, lex):
         super().__init__(lex)
 
+
+class StringNode(AtomicNode):
+
+    def __init__(self, lex):
+        super().__init__(lex)

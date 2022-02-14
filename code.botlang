@@ -1,11 +1,1 @@
-int x = 1;
-
-x = 3;
-
-x = x + x;
-
-print(x);
-
-int y = x * 5;
-
-print(y);
+array x = [ y, z];

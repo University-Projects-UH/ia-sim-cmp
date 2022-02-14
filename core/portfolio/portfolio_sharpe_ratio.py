@@ -3,8 +3,8 @@ import numpy as np
 import scipy.optimize as sco
 
 class PortfolioSharpeRatio(Portfolio):
-    def __init__(self, name, date, assets_array):
-        super().__init__(name, date, assets_array)
+    def __init__(self, date, assets_array):
+        super().__init__(date, assets_array)
 
     # User defined Sharpe ratio function
     # Negative sign to compute the negative value of Sharpe ratio

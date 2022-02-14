@@ -8,7 +8,7 @@ def test_answer():
         'Date': ["2022-01-01", "2022-01-02", "2022-01-03", "2022-01-04", "2022-01-06"],
         'Close': [1000, 1400, 1500, 1500, 1500]
     }
-    testercoin = Asset("Testercoin", None, pd.DataFrame(data))
+    testercoin = Asset(None, pd.DataFrame(data))
 
     expected_response = [1000, 1000, 1400, 1500, 1500, 1500, 1500, 1500]
     date_start = datetime.strptime("2021-12-31", "%Y-%m-%d")
