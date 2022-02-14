@@ -8,7 +8,7 @@ def test_answer():
         'Close': [1500, 1300, 1100, 900, 1400, 850, 1900]
     }
 
-    my_asset = Asset(None, pd.DataFrame(data))
+    my_asset = Asset("Testercoin", pd.DataFrame(data))
 
     grid_bot = GridBot("Calamardo", 800, 2100, 100, 5, 1000, 2000, [my_asset])
     assert grid_bot.investment_per_grid == 20

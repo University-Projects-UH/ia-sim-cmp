@@ -7,13 +7,13 @@ def test_answer():
         'Date': ["2022-01-01", "2022-01-02", "2022-01-03", "2022-01-04", "2022-01-05"],
         'Close': [1000, 1500, 1500, 1500, 1500]
     }
-    testercoin = Asset("Testercoin", None, pd.DataFrame(data))
+    testercoin = Asset("Testercoin", pd.DataFrame(data))
 
     data = {
         'Date': ["2022-01-01", "2022-01-02", "2022-01-03", "2022-01-04", "2022-01-05"],
         'Close': [1000, 1000, 1000, 1000, 660]
     }
-    esponjabot = Asset("BobEsponja", None, pd.DataFrame(data))
+    esponjabot = Asset("BobEsponja", pd.DataFrame(data))
 
     rebalance_bot = RebalanceBot("Rebalance", -100, 100, 2000, [testercoin, esponjabot], 0.1)
 
