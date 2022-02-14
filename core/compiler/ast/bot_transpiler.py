@@ -1,6 +1,12 @@
 from . import visitor as visitor
 from .ast import *
 
+parse_function = {
+    "CreateAsset": lambda params: f"Asset({params})",
+    "PortfolioMSR": lambda params: f"PortfolioSharpeRatio({params}).run()",
+    "PortfolioSDMin": lambda params: f"PortfolioSdMin({params}).run()"
+}
+
 class BotTranspiler(object):
     @visitor.on('node')
     def visit(self, node, tabs):
@@ -24,22 +30,35 @@ class BotTranspiler(object):
 
     @visitor.when(GridBotDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = str(node.id) + " = " + "GridBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
+        if(type(node.params).__name__ == "VariableNode"):
+            ans = str(node.id) + " = " + str(node.params.lex)
+        else:
+            ans = str(node.id) + " = " + "GridBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
         return ans
 
     @visitor.when(RebalanceBotDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = str(node.id) + " = " + "RebalanceBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
+        if(type(node.params).__name__ == "VariableNode"):
+            ans = str(node.id) + " = " + str(node.params.lex)
+        else:
+            ans = str(node.id) + " = " + "RebalanceBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
         return ans
 
     @visitor.when(SmartBotDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = str(node.id) + " = " + "SmartBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
+        if(type(node.params).__name__ == "VariableNode"):
+            ans = str(node.id) + " = " + str(node.params.lex)
+        else:
+            ans = str(node.id) + " = " + "SmartBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
         return ans
 
     @visitor.when(AssetDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = str(node.id) + " = " + "Asset(" + node.asset + ")"
+        ans = "Error declarando asset"
+        if(type(node.asset).__name__ == "VariableNode"):
+            ans = str(node.id) + " = " + str(node.asset.lex)
+        elif(type(node.asset).__name__ == "FuncCallNode"):
+            ans = str(node.id) + " = " + "Asset(" + ", ".join([self.visit(param) for param in node.asset.params]) + ")"
         return ans
 
     @visitor.when(IntDeclarationNode)
@@ -59,7 +78,7 @@ class BotTranspiler(object):
 
     @visitor.when(DateDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = str(node.id) + " = datetime.strptime(\"" + self.visit(node.date) + "\", \"%Y-%m-%d\")"
+        ans = str(node.id) + " = " + self.visit(node.lex)
         return ans
 
     @visitor.when(StringDeclarationNode)
@@ -74,7 +93,7 @@ class BotTranspiler(object):
 
     @visitor.when(ArrayNode)
     def visit(self, node, tabs=0):
-        ans = "[ " + ", ".join(self.visit(elem) for elem in node.elements) + "]"
+        ans = "[" + ", ".join(self.visit(elem) for elem in node.elements) + "]"
         return ans
 
     @visitor.when(ReAssignNode)
@@ -129,10 +148,7 @@ class BotTranspiler(object):
 
     @visitor.when(FuncCallNode)
     def visit(self, node, tabs=0):
-        ans = str(node.lex) + "( "
-        for param in node.params:
-            ans += ", ".join(self.visit(param) for param in node.params)
-        ans += " )"
+        ans = parse_function[node.lex](", ".join(self.visit(param) for param in node.params))
         return ans
 
     @visitor.when(PlusNode)
@@ -177,7 +193,7 @@ class BotTranspiler(object):
 
     @visitor.when(DateNode)
     def visit(self, node, tabs=0):
-        ans = str(node.lex)
+        ans = "datetime.strptime(\"" + node.lex + "\", \"%Y-%m-%d\")"
         return ans
 
     @visitor.when(StringNode)

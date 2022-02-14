@@ -12,7 +12,10 @@ types_check = {
     "date": ["DateNode", "DateDeclarationNode"],
     "boolean": ["BoolNode", "GreatNode", "LessNode", "GreatEqNode", "LessEqNode", \
                 "NotEqualNode", "EqualNode"],
-    "array": ["ArrayDeclarationNode", "list"]
+    "array": ["ArrayDeclarationNode", "ArrayNode"],
+    "list_asset": ["ArrayDeclarationNode", "ArrayNode"],
+    "list_float": ["ArrayDeclarationNode", "ArrayNode"],
+    "asset": ["FuncCallNode", "AssetDeclarationNode"]
 }
 
 map_nodes = {
@@ -61,8 +64,8 @@ class SemanticChecker(object):
 
     def check_func_call(self, func_call_node, _type, variables):
         try:
-            function_return_type = defaultFunctionsReturn[func_call_node.id]
-            function_params_types = defaultFunctionsParams[func_call_node.id]
+            function_return_type = defaultFunctionsReturn[func_call_node.lex]
+            function_params_types = defaultFunctionsParams[func_call_node.lex]
 
             if(len(function_params_types) != len(func_call_node.params)):
                 return self.get_different_params_len()
@@ -77,7 +80,7 @@ class SemanticChecker(object):
                     return error
 
         except KeyError:
-            return self.get_function_error(func_call_node.id)
+            return self.get_function_error(func_call_node.lex)
 
 
     def check_param(self, param, _type, variables = {}):
@@ -86,7 +89,7 @@ class SemanticChecker(object):
 
         if(param_type == "VariableNode"):
             try:
-                param = variables[param_type]
+                param = variables[param.lex]
                 param_type = type(param).__name__
             except KeyError:
                 return self.get_undeclared_error(param.lex)
@@ -98,9 +101,11 @@ class SemanticChecker(object):
         if(_type.startswith("list")):
             list_type = _type[5:]
             if(list_type == "asset" or list_type == "float"):
-                if(param_type != "ArrayDeclarationNode" and param_type != "list"):
+                if(param_type not in types_check_array):
                     return self.get_param_error()
-                for elem in param:
+                if(param_type == "ArrayDeclarationNode"):
+                    param = param.elements
+                for elem in param.elements:
                     error = self.check_param(elem, list_type, variables)
                     if(error is not None):
                         return error
@@ -177,31 +182,37 @@ class SemanticChecker(object):
 
     @visitor.when(GridBotDeclarationNode)
     def visit(self, node, variables = {}):
-        types = ["number", "number", "number", "int", "number", "number", "list_asset"]
-        return self.check_bot(node, types, [7], variables)
+        types = ["string", "number", "number", "number", "int", "number", "number", "list_asset"]
+        return self.check_bot(node, types, [8], variables)
 
     @visitor.when(RebalanceBotDeclarationNode)
     def visit(self, node, variables = {}):
-        types = ["number", "number", "number", "list_asset", "number", "list_float"]
-        return self.check_bot(node, types, [4, 5, 6], variables)
+        types = ["string", "number", "number", "number", "list_asset", "number", "list_float"]
+        return self.check_bot(node, types, [5, 6, 7], variables)
 
     @visitor.when(SmartBotDeclarationNode)
     def visit(self, node, variables = {}):
-        types = ["number", "number", "number", "list_asset"]
-        return self.check_bot(node, types, [4], variables)
+        types = ["string", "number", "number", "number", "list_asset"]
+        return self.check_bot(node, types, [5], variables)
 
     @visitor.when(AssetDeclarationNode)
     def visit(self, node, variables = {}):
+        new_node = node
         if(type(node.asset).__name__ == "VariableNode"):
             try:
                 new_node = variables[node.asset.lex]
             except KeyError:
                 return self.get_undeclared_error(node.asset.lex)
-        if(type(new_node).__name__ == "FuncCallNode"):
+
+        if(type(new_node).__name__ != "AssetDeclarationNode"):
             return self.get_assign_error()
-        error = self.check_func_call(new_node, "asset", variables)
+        if(type(new_node.asset).__name__ != "FuncCallNode"):
+            return self.get_assign_error()
+
+        error = self.check_func_call(new_node.asset, "asset", variables)
         if(error is None):
             variables[node.id] = new_node
+        return error
 
     @visitor.when(ArrayDeclarationNode)
     def visit(self, node, variables = {}):
@@ -211,7 +222,7 @@ class SemanticChecker(object):
                 new_node = variables[node.elements.lex]
             except KeyError:
                 return self.get_undeclared_error(node.elements.lex)
-        if(type(new_node).__name__ != "ArrayDeclarationNode"):
+        if(type(new_node).__name__ not in types_check["array"]):
             return self.get_assign_error()
         variables[node.id] = new_node
         return None

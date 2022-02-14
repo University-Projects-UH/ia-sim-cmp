@@ -22,8 +22,6 @@ def run_project():
 
     lexer = build_lexer()
     tokens = lexer(code)
-    print([token.reg_exp for token in tokens])
-    print([token.reg_type for token in tokens])
     # print([(tok.reg_exp, tok.reg_type) for tok in tokens])
 
     G = BotGrammar().grammar

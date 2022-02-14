@@ -5,8 +5,8 @@ import numpy as np
 import scipy.optimize as sco
 
 class PortfolioSdMin(Portfolio):
-    def __init__(self, name, date, assets_array):
-        super().__init__(name, date, assets_array)
+    def __init__(self, date, assets_array):
+        super().__init__(date, assets_array)
 
     def min_sd_portfolio(self):
         # We use an anonymous lambda function

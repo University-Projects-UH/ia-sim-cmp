@@ -1,6 +1,8 @@
 import pandas as pd
 import datetime
 
+path = "core/asset/assets_data/"
+
 class Asset:
     # asset_data contains:
     # Open: open price
@@ -8,9 +10,9 @@ class Asset:
     # Low: low price
     # Close: close price
     # Date: data date
-    def __init__(self, name, path_file, data_frame = None):
-        self.name = name
-        self.asset_data = pd.read_csv(path_file) if data_frame is None else data_frame
+    def __init__(self, file_name, data_frame = None):
+        self.name = file_name
+        self.asset_data = pd.read_csv(path + file_name) if data_frame is None else data_frame
         self.asset_data.dropna(inplace=True)
         self.asset_data.reset_index(inplace=True)
         self.format_date()
