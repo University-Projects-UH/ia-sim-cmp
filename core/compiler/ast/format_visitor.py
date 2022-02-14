@@ -180,12 +180,12 @@ class FormatVisitor(object):
 
     @visitor.when(IntNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__IntNode: {node.lex}'
+        ans = '\t' * tabs + f'\\__IntNode: {"-" if node.neg else ""}{node.lex}'
         return f'{ans}'
 
     @visitor.when(FloatNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__FloatNode: {node.lex}'
+        ans = '\t' * tabs + f'\\__FloatNode: {"-" if node.neg else ""}{node.lex}'
         return f'{ans}'
 
     @visitor.when(BoolNode)

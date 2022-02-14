@@ -30,7 +30,7 @@ class AtomicNode(ExpressionNode):
 
 class BinaryNode(ExpressionNode):
 
-    def __init__(self, right, left) -> None:
+    def __init__(self, left, right) -> None:
 
         self.right = right
         self.left = left
@@ -216,14 +216,18 @@ class DivNode(BinaryNode):
 
 class IntNode(AtomicNode):
 
-    def __init__(self, lex):
+    def __init__(self, lex, neg=False):
+
         super().__init__(lex)
+        self.neg = neg
 
 
 class FloatNode(AtomicNode):
 
-    def __init__(self, lex):
+    def __init__(self, lex, neg=False):
+
         super().__init__(lex)
+        self.neg = neg
 
 
 class BoolNode(AtomicNode):
