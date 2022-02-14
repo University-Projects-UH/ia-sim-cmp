@@ -176,11 +176,13 @@ class BotGrammar:
         term %= term + div + factor, lambda h, s: DivNode(s[1], s[3])
         term %= factor, lambda h, s: s[1]
 
-        factor %= opar + expression + cpar, lambda h, s: s[2]
+        factor %= opar + expression + cpar, lambda h, s: ParenthesisNode(s[2])
         factor %= atom, lambda h, s: s[1]
 
         atom %= int_number, lambda h, s: IntNode(s[1])
+        atom %= minus + int_number, lambda h, s: IntNode(s[2], True)
         atom %= float_number, lambda h, s: FloatNode(s[1])
+        atom %= minus + float_number, lambda h, s: FloatNode(s[2], True)
         atom %= ID, lambda h, s: VariableNode(s[1])
         atom %= func_call, lambda h, s: s[1]
         atom %= date_type, lambda h, s: DateNode(s[1])

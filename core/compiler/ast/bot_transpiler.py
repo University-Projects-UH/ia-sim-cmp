@@ -173,12 +173,12 @@ class BotTranspiler(object):
 
     @visitor.when(IntNode)
     def visit(self, node, tabs=0):
-        ans = str(node.lex)
+        ans = ("(-" if node.neg else "") + str(node.lex) + (")" if node.neg else "")
         return ans
 
     @visitor.when(FloatNode)
     def visit(self, node, tabs=0):
-        ans = str(node.lex)
+        ans = ("(-" if node.neg else "") + str(node.lex) + (")" if node.neg else "")
         return ans
 
     @visitor.when(BoolNode)
