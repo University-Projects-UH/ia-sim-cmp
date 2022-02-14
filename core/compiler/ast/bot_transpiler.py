@@ -69,11 +69,12 @@ class BotTranspiler(object):
 
     @visitor.when(ArrayDeclarationNode)
     def visit(self, node, tabs=0):
-        ans = str(node.id) + " = "
-        if isinstance(node.elements, list):
-            ans += "[" + ", ".join(self.visit(elem) for elem in node.elements) + "]"
-        else:
-            ans += self.visit(node.elements)
+        ans = str(node.id) + " = " + self.visit(node.elements)
+        return ans
+
+    @visitor.when(ArrayNode)
+    def visit(self, node, tabs=0):
+        ans = "[ " + ", ".join(self.visit(elem) for elem in node.elements) + "]"
         return ans
 
     @visitor.when(ReAssignNode)

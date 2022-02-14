@@ -4,7 +4,7 @@ from .ast.ast import AssetDeclarationNode
 from .ast.ast import IntDeclarationNode, BoolDeclarationNode, FloatDeclarationNode, ReAssignNode, DateDeclarationNode
 from .ast.ast import NegateBooleanNode, ParenthesisNode
 from .ast.ast import EqualNode, NotEqualNode, GreatEqNode, GreatNode, LessEqNode, LessNode
-from .ast.ast import PrintNode, FuncCallNode
+from .ast.ast import PrintNode, FuncCallNode, ArrayNode
 from .ast.ast import PlusNode, MinusNode, MulNode, DivNode
 from .ast.ast import IntNode, FloatNode, BoolNode, VariableNode, StringNode
 from .ast.ast import StringDeclarationNode, ArrayDeclarationNode
@@ -154,7 +154,7 @@ class BotGrammar:
         boolean %= truet, lambda h, s: BoolNode(s[1])
         boolean %= falset, lambda h, s: BoolNode(s[1])
 
-        array %= obracket + elem_list + cbracket, lambda h, s: s[2]
+        array %= obracket + elem_list + cbracket, lambda h, s: ArrayNode(s[2])
 
         elem_list %= elem, lambda h, s: [s[1]]
         elem_list %= elem + colon + elem_list, lambda h, s: [s[1]] + s[3]

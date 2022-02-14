@@ -117,6 +117,11 @@ class ArrayDeclarationNode(StatementNode):
         self.id = id
         self.elements = elements
 
+class ArrayNode(Node):
+
+    def __init__(self, elements):
+        self.elements = elements
+
 
 class ReAssignNode(StatementNode):
 

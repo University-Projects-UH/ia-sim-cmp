@@ -67,11 +67,14 @@ class FormatVisitor(object):
     @visitor.when(ArrayDeclarationNode)
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__ ArrayDeclarationNode: {node.id}'
-        if isinstance(node.elements, list):
-            params = '\n'.join(self.visit(elem, tabs + 1) for elem in node.elements)
-        else:
-            params = self.visit(node.elements, tabs + 1)
+        params = self.visit(node.elements, tabs + 1)
         return f'{ans}\n{params}'
+
+    @visitor.when(ArrayNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__ ArrayNode'
+        elements = '\n'.join(self.visit(elem, tabs + 1) for elem in node.elements)
+        return f'{ans}\n{elements}'
 
     @visitor.when(ReAssignNode)
     def visit(self, node, tabs=0):
