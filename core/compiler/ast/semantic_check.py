@@ -12,9 +12,9 @@ types_check = {
     "date": ["DateNode", "DateDeclarationNode"],
     "boolean": ["BoolNode", "GreatNode", "LessNode", "GreatEqNode", "LessEqNode", \
                 "NotEqualNode", "EqualNode"],
-    "array": ["ArrayDeclarationNode", "ArrayNode"],
-    "list_asset": ["ArrayDeclarationNode", "ArrayNode"],
-    "list_float": ["ArrayDeclarationNode", "ArrayNode"],
+    "array": ["ArrayNode", "ArrayDeclarationNode"],
+    "list_asset": ["ArrayNode", "ArrayDeclarationNode"],
+    "list_float": ["ArrayNode", "ArrayDeclarationNode"],
     "asset": ["FuncCallNode", "AssetDeclarationNode"]
 }
 
@@ -39,10 +39,10 @@ defaultFunctionsParams = {
     "CreateAsset": ["string"]
 }
 
-# list with the assets
-assets_accepted = []
-
 class SemanticChecker(object):
+
+    def __init__(self, assets_accepted):
+        self.assets_accepted = assets_accepted
 
     def get_undeclared_error(self, id):
         return f"Variable '{id}' no declarada"
@@ -62,6 +62,9 @@ class SemanticChecker(object):
     def get_different_params_len(self):
         return "Cantidad de parámetros distinto a lo esperado"
 
+    def get_asset_undefined_error(self, lex):
+        return f"El activo {lex} no existe"
+
     def check_func_call(self, func_call_node, _type, variables):
         try:
             function_return_type = defaultFunctionsReturn[func_call_node.lex]
@@ -78,6 +81,9 @@ class SemanticChecker(object):
                 error = self.check_param(param, type_expected, variables)
                 if(error is not None):
                     return error
+                if(_type == "asset" and param.lex not in self.assets_accepted):
+                    return self.get_asset_undefined_error(param.lex)
+
 
         except KeyError:
             return self.get_function_error(func_call_node.lex)
@@ -160,11 +166,11 @@ class SemanticChecker(object):
         if(left_type != right_type):
             return self.get_compare_error()
 
-        error = self.visit(left)
+        error = self.visit(left, variables)
         if(error is not None):
             return error
 
-        return self.visit(right)
+        return self.visit(right, variables)
 
     @visitor.on('node')
     def visit(self, node, variables = {}):
@@ -224,7 +230,28 @@ class SemanticChecker(object):
                 return self.get_undeclared_error(node.elements.lex)
         if(type(new_node).__name__ not in types_check["array"]):
             return self.get_assign_error()
+
+        error = self.visit(new_node.elements, variables)
+        if(error is not None):
+            return error
+
         variables[node.id] = new_node
+        return None
+
+    @visitor.when(ArrayNode)
+    def visit(self, node, variables = {}):
+        for elem in node.elements:
+            error = self.visit(elem, variables)
+            if(error is not None):
+                return error
+
+        return None
+
+    @visitor.when(VariableNode)
+    def visit(self, node, variables = {}):
+        if(variables.__contains__(node.lex) == False):
+            return self.get_undeclared_error(node.lex)
+
         return None
 
     @visitor.when(IntDeclarationNode)
@@ -358,7 +385,14 @@ class SemanticChecker(object):
 
     @visitor.when(PrintNode)
     def visit(self, node, variables = {}):
-        pass
+        new_node = node
+        if(type(node.elem).__name__ == "VariableNode"):
+            try:
+                new_node = variables[node.elem.lex]
+            except KeyError:
+                return self.get_undeclared_error(node.elem.lex)
+        return self.visit(new_node, variables)
+
 
     @visitor.when(PlusNode)
     def visit(self, node, variables = {}):

@@ -1,17 +1,1 @@
-asset btc = CreateAsset("BTC-USD.csv");
-asset eth = CreateAsset("ETH-USD.csv");
-asset btcCopy = btc;
-
-array portfolioSharpeRatio = PortfolioMSR(2020-02-12, [btc, eth, CreateAsset("BTC-USD.csv")]);
-
-array portfolioMinSD = PortfolioSDMin(2020-02-12, [btc, eth, CreateAsset("BTC-USD.csv")]);
-
-grid_bot karel = grid_bot("Calamardo", 800, 2100, 100, 5, 1000, 2000, [btc]);
-
-rebalance_bot frank = rebalance_bot("Frank", 0, 100, 100, [btc, CreateAsset("ETH-USD.csv"), btcCopy]);
-
-smart_bot alben = smart_bot("Alben", 800, 2100, 1000, [eth]);
-
-
-print(portfolioSharpeRatio);
-print(portfolioMinSD);
+array x = [ y, z];
