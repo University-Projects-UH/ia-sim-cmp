@@ -106,6 +106,16 @@ class BotTranspiler(object):
         ans = "not " + self.visit(node.expression)
         return ans
 
+    @visitor.when(AndNode)
+    def visit(self, node, tabs=0):
+        ans = self.visit(node.left) + " and " + self.visit(node.right)
+        return ans
+
+    @visitor.when(OrNode)
+    def visit(self, node, tabs=0):
+        ans = self.visit(node.left) + " or " + self.visit(node.right)
+        return ans
+
     @visitor.when(ParenthesisNode)
     def visit(self, node, tabs=0):
         ans = "( " + self.visit(node.expression) + " )"
