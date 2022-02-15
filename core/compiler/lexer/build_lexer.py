@@ -31,7 +31,6 @@ KEYWORDS = [
     'False',
     'and',
     'or',
-    'portfolio',
     'portfolio_max_sharpe_ratio',
     'portfolio_min_sd',
     'array'
@@ -40,7 +39,7 @@ SYMBOLS = [
     '+', '-', '/', '*', '(', ')', '!', ',',
     '<', '>', '[', ']', '<=', '=>', '=', '==', ';', '!='
 ]
-symbols = ['+', " ", '-', '/', '*', '(', ')', '!', '<', '>', '[', ']', ';', '=', "."]
+symbols = ['+', " ", '-', '/', '*', '(', ')', '!', '<', '>', '[', ']', ';', '=', ".", "\\"]
 symbols = digit + "|" + letter + "|" + "|".join(symbols)
 
 SPACE = '{ |\n|\t|\f|\r|\v}{ |\n|\t|\f|\r|\v}^'

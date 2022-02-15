@@ -2,9 +2,10 @@ from . import visitor as visitor
 from .ast import *
 
 parse_function = {
-    "CreateAsset": lambda params: f"Asset({params})",
-    "PortfolioMSR": lambda params: f"PortfolioSharpeRatio({params}).run()",
-    "PortfolioSDMin": lambda params: f"PortfolioSdMin({params}).run()"
+    "CreateAsset": lambda params: f"Asset({', '.join(params)})",
+    "PortfolioMSR": lambda params: f"PortfolioSharpeRatio({', '.join(params)}).run()",
+    "PortfolioSDMin": lambda params: f"PortfolioSdMin({', '.join(params)}).run()",
+    "StartBot": lambda params: f"{params[0]}.start_bot({', '.join(params[1:])})"
 }
 
 class BotTranspiler(object):
@@ -158,7 +159,7 @@ class BotTranspiler(object):
 
     @visitor.when(FuncCallNode)
     def visit(self, node, tabs=0):
-        ans = parse_function[node.lex](", ".join(self.visit(param) for param in node.params))
+        ans = parse_function[node.lex]([self.visit(param) for param in node.params])
         return ans
 
     @visitor.when(PlusNode)

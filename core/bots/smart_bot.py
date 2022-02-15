@@ -118,12 +118,13 @@ class SmartBot(Bot):
             return True
         return False
 
-    def print_summary(self, start_date, max_date):
-        #self.print_operation_history()
+    def print_summary(self, start_date, max_date, show_history):
         print("Start date: " + str(start_date))
         print("End date: " + str(max_date))
         percent_profit = (self.profit * 100) / self.investment
         print("Profit: " + str(self.profit) + " | " + str(percent_profit) + "%")
+        if(show_history):
+            self.print_operation_history()
 
     def buy(self, date):
         price_at_date = self.get_close_price_at_date(date)
@@ -176,13 +177,13 @@ class SmartBot(Bot):
         while(can_buy or can_sell):
             if(len(self.opened_orders) > 0):
                 price_last_order = self.opened_orders[-1].price
-                
+
                 # not price up +5%
-                if(can_sell and not self.price_compare(price_last_order,price_act,5)): 
+                if(can_sell and not self.price_compare(price_last_order,price_act,5)):
                     can_sell = False
-                
+
                 # not price down -10% or limit maximum orders
-                if(not self.price_compare(price_last_order,price_act,-10) 
+                if(not self.price_compare(price_last_order,price_act,-10)
                     or len(self.opened_orders) == self.max_open_orders):
                     can_buy = False
             else:
@@ -193,7 +194,7 @@ class SmartBot(Bot):
             if(can_buy):
                 self.buy(date)
 
-    def start_bot(self, date = None):
+    def start_bot(self, show_history = False, date = None):
         if(date is None):
             date = self.get_lower_date()
         start_date = date
@@ -203,11 +204,11 @@ class SmartBot(Bot):
             if(self.verify_sl_and_tp(price)):
                 self.close_bot_at_price(date, price)
                 break
-            
+
             self.operate(date)
 
             date += datetime.timedelta(days = 1)
 
         # price = self.get_close_price_at_date(date - datetime.timedelta(days = 1))
         # self.close_bot_at_price(date,price)
-        self.print_summary(start_date, max_date)
+        self.print_summary(start_date, max_date, show_history)
