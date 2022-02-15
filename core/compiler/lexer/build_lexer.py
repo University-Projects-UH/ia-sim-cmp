@@ -29,6 +29,8 @@ KEYWORDS = [
     'print',
     'True',
     'False',
+    'and',
+    'or',
     'portfolio',
     'portfolio_max_sharpe_ratio',
     'portfolio_min_sd',
