@@ -53,6 +53,13 @@ int x = 5*6 + 2;
 
 También contiene una serie de operaciones para binarias y unarias: operaciones aritméticas (suma, resta, ...) y operaciones de comparación (mayor, igual, negación, ...)
 
+Para imprimir en la consola se utiliza la funcion *print*, de la siguiente manera:
+
+```python
+print x;
+print "Hola Mundo";
+```
+
 También contaremos con un conjunto de objetos específicos de nuestro lenguaje:
 
 $\bullet$ Los bots: que pueden ser de varios tipos (smart bot, grid bot, rebalance bot) y con varias configuraciones. Mostraremos con un ejemplo como luce la sintaxis para crear los bots: 
@@ -80,8 +87,8 @@ array assets = [CreateAsset("A1"), CreateAsset("A2"),...]; # para crear un array
 $\bullet$ Los portfolios:
 
 ``` python
-array x = portfolio_min_sd(p1, p2)
-array y = portfolio_max_sharpe_ratio(p1, p2)
+array x = PortfolioSDMin(p1, p2)
+array y = PortfolioMSR(p1, p2)
 ```
 
 -El portfolio recibe 2 parámetros: assets array y date.
