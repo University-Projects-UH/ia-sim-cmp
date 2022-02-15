@@ -6,6 +6,7 @@
 - Karel Díaz Vergara C312
 
 ## Install and run
+
 ``` bash
 $ git clone https://github.com/University-Projects-UH/ia-sim-cmp
 $ cd ./ia-sim-cmp
@@ -15,11 +16,13 @@ $ pip3 install < requirements.txt
 ```
 
 ## Execute
-``` bash
-$python index.py code.botlang
+
+```bash
+$python3 index.py code.botlang
 ```
 
 ## Run tests:
+
 ``` bash
 $ pytest
 ```
@@ -34,9 +37,9 @@ Bots disponibles:
 - Smart Bot
 - Rebalance Bot
 
-### Sintaxis del lenguaje
+## Sintaxis
 
-El lenguaje nuestro cuenta con los tipos int, bool y float para los números enteros, las expresiones booleanas y los números flotantes. La manera de instanciarlos es la siguiente: 
+El lenguaje nuestro cuenta con los tipos int, bool, float, string y date; para los números enteros, las expresiones booleanas, los números flotantes, string y fechas (el formato de estas es yyyy-mm-dd). La manera de instanciarlos es la siguiente: 
 
 ```python
 int x = 5;
@@ -58,7 +61,7 @@ $\bullet$ Los bots: que pueden ser de varios tipos (smart bot, grid bot, rebalan
 grid_bot x = grid_bot(p1, ..., pn);
 ```
 
--El grid\_bot recibe 7 parématros que son (en ese orden): stop\_loss take\_profit, investment, grids, limit\_low, limit\_high y assets\_array.  
+-El grid\_bot recibe 7 parámetros que son (en ese orden): stop\_loss take\_profit, investment, grids, limit\_low, limit\_high y assets\_array.  
 
 -El rebalance bot recibe 6 parámetros (los dos últimos son opcionales): stop\_loss, take\_profit, investment, assets\_array.  
 
@@ -67,23 +70,25 @@ grid_bot x = grid_bot(p1, ..., pn);
 $\bullet$ Los assets: son objetos que representan activos específicos. Mostraremos con dos ejemplos la sintaxis para crear activos:
 
 ```python
-asset x = asset(BTC); # para crear un solo asset
+asset x = CreateAsset("BTC"); # para crear un solo asset
 ```
 
 ``` python
-assets arr = [a1, ..., an]; # para crear un array de asset 
+array assets = [CreateAsset("A1"), CreateAsset("A2"),...]; # para crear un array de asset 
 ```
 
 $\bullet$ Los portfolios:
 
 ``` python
-portfolio x = portfolio_min_sd(p1, p2, p3)
-portfolio y = portfolio_max_sharpe_ratio(p1, p2, p3)
+array x = portfolio_min_sd(p1, p2)
+array y = portfolio_max_sharpe_ratio(p1, p2)
 ```
 
--El portfolio recibe 3 parámetros: date, assets array.
+-El portfolio recibe 2 parámetros: assets array y date.
 
 También tendremos un conjunto de funciones propias de la lógica de los bots: 
+
+- CreateAsset: Recibe el string con el nombre del activo y se le asocia a una variable
 
 - PrintInfo: Imprime la información del bot, ya sea los activos con los que opera, y alguno de sus atributos.
 
