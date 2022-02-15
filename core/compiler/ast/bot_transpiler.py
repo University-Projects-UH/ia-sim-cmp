@@ -2,9 +2,10 @@ from . import visitor as visitor
 from .ast import *
 
 parse_function = {
-    "CreateAsset": lambda params: f"Asset({params})",
-    "PortfolioMSR": lambda params: f"PortfolioSharpeRatio({params}).run()",
-    "PortfolioSDMin": lambda params: f"PortfolioSdMin({params}).run()"
+    "CreateAsset": lambda params: f"Asset({', '.join(params)})",
+    "PortfolioMSR": lambda params: f"PortfolioSharpeRatio({', '.join(params)}).run()",
+    "PortfolioSDMin": lambda params: f"PortfolioSdMin({', '.join(params)}).run()",
+    "StartBot": lambda params: f"{params[0]}.start_bot({', '.join(params[1:])})"
 }
 
 class BotTranspiler(object):
@@ -106,6 +107,16 @@ class BotTranspiler(object):
         ans = "not " + self.visit(node.expression)
         return ans
 
+    @visitor.when(AndNode)
+    def visit(self, node, tabs=0):
+        ans = self.visit(node.left) + " and " + self.visit(node.right)
+        return ans
+
+    @visitor.when(OrNode)
+    def visit(self, node, tabs=0):
+        ans = self.visit(node.left) + " or " + self.visit(node.right)
+        return ans
+
     @visitor.when(ParenthesisNode)
     def visit(self, node, tabs=0):
         ans = "( " + self.visit(node.expression) + " )"
@@ -148,7 +159,7 @@ class BotTranspiler(object):
 
     @visitor.when(FuncCallNode)
     def visit(self, node, tabs=0):
-        ans = parse_function[node.lex](", ".join(self.visit(param) for param in node.params))
+        ans = parse_function[node.lex]([self.visit(param) for param in node.params])
         return ans
 
     @visitor.when(PlusNode)

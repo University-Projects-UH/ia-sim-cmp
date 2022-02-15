@@ -15,7 +15,8 @@ types_check = {
     "array": ["ArrayNode", "ArrayDeclarationNode"],
     "list_asset": ["ArrayNode", "ArrayDeclarationNode"],
     "list_float": ["ArrayNode", "ArrayDeclarationNode"],
-    "asset": ["FuncCallNode", "AssetDeclarationNode"]
+    "asset": ["FuncCallNode", "AssetDeclarationNode"],
+    "bot": ["GridBotDeclarationNode", "RebalanceBotDeclarationNode", "SmartBotDeclarationNode"]
 }
 
 map_nodes = {
@@ -30,13 +31,15 @@ map_nodes = {
 defaultFunctionsReturn = {
     "PortfolioMSR": "array_float",
     "PortfolioSDMin": "array_float",
-    "CreateAsset": "asset"
+    "CreateAsset": "asset",
+    "StartBot": "None"
 }
 
 defaultFunctionsParams = {
-    "PortfolioMSR": ["list_asset", "date"],
-    "PortfolioSDMin": ["list_asset", "date"],
-    "CreateAsset": ["string"]
+    "PortfolioMSR": ["date", "list_asset"],
+    "PortfolioSDMin": ["date", "list_asset"],
+    "CreateAsset": ["string"],
+    "StartBot": ["bot", "boolean"]
 }
 
 class SemanticChecker(object):
@@ -46,6 +49,9 @@ class SemanticChecker(object):
 
     def get_undeclared_error(self, id):
         return f"Variable '{id}' no declarada"
+
+    def get_declared_twice_error(self, id):
+        return f"La variable '{id}' ya ha sido declarada antes"
 
     def get_compare_error(self):
         return "No puedes comparar dos tipos diferentes"
@@ -73,7 +79,7 @@ class SemanticChecker(object):
             if(len(function_params_types) != len(func_call_node.params)):
                 return self.get_different_params_len()
 
-            if(_type != function_return_type):
+            if(_type is not None and _type != function_return_type):
                 return self.get_param_error()
 
             for i, param in enumerate(func_call_node.params):
@@ -81,7 +87,7 @@ class SemanticChecker(object):
                 error = self.check_param(param, type_expected, variables)
                 if(error is not None):
                     return error
-                if(_type == "asset" and param.lex not in self.assets_accepted):
+                if(_type == "asset" and param.lex[1:-1] not in self.assets_accepted):
                     return self.get_asset_undefined_error(param.lex)
 
 
@@ -111,6 +117,8 @@ class SemanticChecker(object):
                     return self.get_param_error()
                 if(param_type == "ArrayDeclarationNode"):
                     param = param.elements
+                if(type(param).__name__ == "FuncCallNode"):
+                    return self.check_func_call(param, "array_float", variables)
                 for elem in param.elements:
                     error = self.check_param(elem, list_type, variables)
                     if(error is not None):
@@ -188,21 +196,29 @@ class SemanticChecker(object):
 
     @visitor.when(GridBotDeclarationNode)
     def visit(self, node, variables = {}):
+        if(variables.__contains__(node.id)):
+            return self.get_declared_twice_error(node.id)
         types = ["string", "number", "number", "number", "int", "number", "number", "list_asset"]
         return self.check_bot(node, types, [8], variables)
 
     @visitor.when(RebalanceBotDeclarationNode)
     def visit(self, node, variables = {}):
+        if(variables.__contains__(node.id)):
+            return self.get_declared_twice_error(node.id)
         types = ["string", "number", "number", "number", "list_asset", "number", "list_float"]
         return self.check_bot(node, types, [5, 6, 7], variables)
 
     @visitor.when(SmartBotDeclarationNode)
     def visit(self, node, variables = {}):
+        if(variables.__contains__(node.id)):
+            return self.get_declared_twice_error(node.id)
         types = ["string", "number", "number", "number", "list_asset"]
         return self.check_bot(node, types, [5], variables)
 
     @visitor.when(AssetDeclarationNode)
     def visit(self, node, variables = {}):
+        if(variables.__contains__(node.id)):
+            return self.get_declared_twice_error(node.id)
         new_node = node
         if(type(node.asset).__name__ == "VariableNode"):
             try:
@@ -222,6 +238,8 @@ class SemanticChecker(object):
 
     @visitor.when(ArrayDeclarationNode)
     def visit(self, node, variables = {}):
+        if(variables.__contains__(node.id)):
+            return self.get_declared_twice_error(node.id)
         new_node = node
         if(type(node.elements).__name__ == "VariableNode"):
             try:
@@ -256,6 +274,8 @@ class SemanticChecker(object):
 
     @visitor.when(IntDeclarationNode)
     def visit(self, node, variables = {}):
+        if(variables.__contains__(node.id)):
+            return self.get_declared_twice_error(node.id)
         new_node = node
         if(type(node.expression).__name__ == "VariableNode"):
             try:
@@ -269,6 +289,8 @@ class SemanticChecker(object):
 
     @visitor.when(FloatDeclarationNode)
     def visit(self, node, variables = {}):
+        if(variables.__contains__(node.id)):
+            return self.get_declared_twice_error(node.id)
         new_node = node
         if(type(node.expression).__name__ == "VariableNode"):
             try:
@@ -282,6 +304,8 @@ class SemanticChecker(object):
 
     @visitor.when(BoolDeclarationNode)
     def visit(self, node, variables = {}):
+        if(variables.__contains__(node.id)):
+            return self.get_declared_twice_error(node.id)
         new_node = node
         if(type(node.boolean).__name__ == "VariableNode"):
             try:
@@ -295,6 +319,8 @@ class SemanticChecker(object):
 
     @visitor.when(StringDeclarationNode)
     def visit(self, node, variables = {}):
+        if(variables.__contains__(node.id)):
+            return self.get_declared_twice_error(node.id)
         new_node = node
         if(type(node.string).__name__ == "VariableNode"):
             try:
@@ -308,6 +334,8 @@ class SemanticChecker(object):
 
     @visitor.when(DateDeclarationNode)
     def visit(self, node, variables = {}):
+        if(variables.__contains__(node.id)):
+            return self.get_declared_twice_error(node.id)
         new_node = node
         if(type(node.date).__name__ == "VariableNode"):
             try:
@@ -355,9 +383,9 @@ class SemanticChecker(object):
 
     @visitor.when(FuncCallNode)
     def visit(self, node, variables = {}):
-        if(node.id in defaultFunctionsReturn.keys()):
-            return None
-        return self.get_function_error(node.id)
+        if(node.lex in defaultFunctionsReturn.keys()):
+            return self.check_func_call(node, None, variables)
+        return self.get_function_error(node.lex)
 
     @visitor.when(NegateBooleanNode)
     def visit(self, node, variables = {}):
@@ -391,8 +419,6 @@ class SemanticChecker(object):
                 new_node = variables[node.elem.lex]
             except KeyError:
                 return self.get_undeclared_error(node.elem.lex)
-        return self.visit(new_node, variables)
-
 
     @visitor.when(PlusNode)
     def visit(self, node, variables = {}):

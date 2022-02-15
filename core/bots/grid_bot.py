@@ -52,7 +52,6 @@ class GridBot(Bot):
     def initialize_bot(self, date):
         price = self.get_price_at_date(date)
         start_grid = self.get_ceil_grid(price) + 1
-        print(start_grid)
         while (start_grid < len(self.grids_orders)):
             asset_name = self.assets_array[0].name
             assetA_volumen = self.investment_per_grid / price
@@ -118,20 +117,27 @@ class GridBot(Bot):
             self.profit += (grid_price - order_opened.price) * order_opened.volumen
 
 
-    def print_summary(self, start_date, max_date):
-        #self.print_operation_history()
+    def print_summary(self, start_date, max_date, show_history):
         print("Start date: " + str(start_date))
         print("End date: " + str(max_date))
         percent_profit = (self.profit * 100) / self.investment
         print("Profit: " + str(self.profit) + " | " + str(percent_profit) + "%")
+        if show_history:
+            self.print_operation_history()
 
-    def start_bot(self, date = None):
+    def start_bot(self, show_history = False, date = None):
         if(date is None):
             date = self.get_lower_date()
-        self.initialize_bot(date)
+
         start_date = date
         max_date = self.get_upper_date()
         last_price = self.get_price_at_date(date)
+
+        if(self.verify_sl_and_tp(last_price)):
+            self.print_summary(start_date, max_date, show_history)
+            return
+
+        self.initialize_bot(date)
         date += datetime.timedelta(days = 1)
         while date <= max_date:
             price_at_date = self.get_price_at_date(date)
@@ -144,5 +150,5 @@ class GridBot(Bot):
             date += datetime.timedelta(days = 1)
 
         self.close_bot_at_price(last_price)
-        self.print_summary(start_date, max_date)
+        self.print_summary(start_date, max_date, show_history)
 

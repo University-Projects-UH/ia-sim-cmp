@@ -89,6 +89,20 @@ class FormatVisitor(object):
         exp = self.visit(node.expression, tabs + 1)
         return f'{ans}\n{exp}'
 
+    @visitor.when(AndNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__ AndNode'
+        left = self.visit(node.left, tabs + 1)
+        right = self.visit(node.right, tabs + 1)
+        return f'{ans}\n{left}\n{right}'
+
+    @visitor.when(OrNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__ OrNode'
+        left = self.visit(node.left, tabs + 1)
+        right = self.visit(node.right, tabs + 1)
+        return f'{ans}\n{left}\n{right}'
+
     @visitor.when(ParenthesisNode)
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__ ParenthesisNode'

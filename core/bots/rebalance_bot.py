@@ -80,7 +80,15 @@ class RebalanceBot(Bot):
         volumen_usd_profit = sum(assets_values)
         return volumen_usd_profit, (volumen_usd_profit - self.investment) / 100
 
-    def start_bot(self, date = None):
+    def print_summary(self, start_date, max_date, show_history):
+        volumen_usd_profit, percent_profit = self.get_profit(max_date)
+        print("Start date: " + str(start_date))
+        print("End date: " + str(max_date))
+        print("Profit: " + str(volumen_usd_profit) + "$ | " + str(percent_profit) + "%")
+        if(show_history):
+            self.print_operation_history()
+
+    def start_bot(self, show_history = False, date = None):
         if(date is None):
             date = self.get_lower_date()
 
@@ -112,8 +120,5 @@ class RebalanceBot(Bot):
             self.rebalance_assets(assets_percent, sum(assets_values), date)
 
             date += datetime.timedelta(days = 1)
-        #self.print_operation_history()
-        volumen_usd_profit, percent_profit = self.get_profit(date)
-        print("Start date: " + str(start_date))
-        print("End date: " + str(max_date))
-        print("Profit: " + str(volumen_usd_profit) + "$ | " + str(percent_profit) + "%")
+
+        self.print_summary(start_date, max_date, show_history)

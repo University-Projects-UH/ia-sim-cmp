@@ -1,9 +1,9 @@
 from core import Grammar, Production
-from .ast.ast import DateNode, ProgramNode, GridBotDeclarationNode, RebalanceBotDeclarationNode, SmartBotDeclarationNode
+from .ast.ast import AndNode, DateNode, ProgramNode, GridBotDeclarationNode, RebalanceBotDeclarationNode, SmartBotDeclarationNode
 from .ast.ast import AssetDeclarationNode
 from .ast.ast import IntDeclarationNode, BoolDeclarationNode, FloatDeclarationNode, ReAssignNode, DateDeclarationNode
 from .ast.ast import NegateBooleanNode, ParenthesisNode
-from .ast.ast import EqualNode, NotEqualNode, GreatEqNode, GreatNode, LessEqNode, LessNode
+from .ast.ast import EqualNode, NotEqualNode, GreatEqNode, GreatNode, LessEqNode, LessNode, AndNode, OrNode
 from .ast.ast import PrintNode, FuncCallNode, ArrayNode
 from .ast.ast import PlusNode, MinusNode, MulNode, DivNode
 from .ast.ast import IntNode, FloatNode, BoolNode, VariableNode, StringNode
@@ -43,8 +43,6 @@ class BotGrammar:
         bool_declaration = G.add_non_terminal('<bool_declaration>')
         date_declaration = G.add_non_terminal('<date_declaration>')
 
-        boolean = G.add_non_terminal('<boolean>')
-
         array = G.add_non_terminal('<array>')
 
         elem_list = G.add_non_terminal('<elem_list>')
@@ -54,7 +52,9 @@ class BotGrammar:
         print_elem = G.add_non_terminal('<print_elem>')
         func_call = G.add_non_terminal('<func_call>')
 
-        expression, term, factor, atom = G.add_non_terminals('<expression> <term> <factor> <atom>')
+        arithmetic_expression, term, factor, atom = G.add_non_terminals('<expression> <term> <factor> <atom>')
+        bool_or_expression = G.add_non_terminal('<bool_or_expression>')
+        compare_expression = G.add_non_terminal('<compare_expression>')
 
         portfolio_declaration = G.add_non_terminal('<portfolio_declaration>')
 
@@ -87,6 +87,7 @@ class BotGrammar:
         stringt = G.add_terminal('string')
         string_exp = G.add_terminal('string_exp')
         arrayt = G.add_terminal('array')
+        andt, ort = G.add_terminals('and or')
 
 
         ###############################################
@@ -129,13 +130,13 @@ class BotGrammar:
         asset_declaration %= asset + ID + assign + func_call, lambda h, s: AssetDeclarationNode(s[2], s[4])
         asset_declaration %= asset + ID + assign + ID, lambda h, s: AssetDeclarationNode(s[2], VariableNode(s[4]))
 
-        int_decalaration %= intt + ID + assign + expression, lambda h, s: IntDeclarationNode(s[2], s[4])
+        int_decalaration %= intt + ID + assign + arithmetic_expression, lambda h, s: IntDeclarationNode(s[2], s[4])
 
-        float_declaration %= floatt + ID + assign + expression, lambda h, s: FloatDeclarationNode(s[2], s[4])
+        float_declaration %= floatt + ID + assign + arithmetic_expression, lambda h, s: FloatDeclarationNode(s[2], s[4])
 
-        bool_declaration %= boolt + ID + assign + elem, lambda h, s: BoolDeclarationNode(s[2], s[4])
+        bool_declaration %= boolt + ID + assign + bool_or_expression, lambda h, s: BoolDeclarationNode(s[2], s[4])
 
-        date_declaration %= datet + ID + assign + expression, lambda h, s: DateDeclarationNode(s[2], s[4]) 
+        date_declaration %= datet + ID + assign + arithmetic_expression, lambda h, s: DateDeclarationNode(s[2], s[4]) 
 
         array_declaration %= arrayt + ID + assign + array, lambda h, s: ArrayDeclarationNode(s[2], s[4])
         array_declaration %= arrayt + ID + assign + func_call, lambda h, s: ArrayDeclarationNode(s[2], s[4])
@@ -143,24 +144,12 @@ class BotGrammar:
 
         re_assign %= ID + assign + elem, lambda h, s: ReAssignNode(s[1], s[3])
 
-        boolean %= opar + boolean + cpar, lambda h, s: s[2]
-        boolean %= negate + boolean, lambda h, s: NegateBooleanNode(s[2])
-        boolean %= expression + equal + expression, lambda h, s: EqualNode(s[1], s[3])
-        boolean %= expression + not_equal + expression, lambda h, s: NotEqualNode(s[1], s[3])
-        boolean %= expression + great_eq + expression, lambda h, s: GreatEqNode(s[1], s[3])
-        boolean %= expression + less_eq + expression, lambda h, s: LessEqNode(s[1], s[3])
-        boolean %= expression + less + expression, lambda h, s: LessNode(s[1], s[3])
-        boolean %= expression + great + expression, lambda h, s: GreatNode(s[1], s[3])
-        boolean %= truet, lambda h, s: BoolNode(s[1])
-        boolean %= falset, lambda h, s: BoolNode(s[1])
-
         array %= obracket + elem_list + cbracket, lambda h, s: ArrayNode(s[2])
 
         elem_list %= elem, lambda h, s: [s[1]]
         elem_list %= elem + colon + elem_list, lambda h, s: [s[1]] + s[3]
 
-        elem %= expression, lambda h, s: s[1]
-        elem %= boolean, lambda h, s: s[1]
+        elem %= bool_or_expression, lambda h, s: s[1]
         elem %= array, lambda h, s: s[1]
         elem %= string_exp, lambda h, s: StringNode(s[1])
 
@@ -168,15 +157,28 @@ class BotGrammar:
 
         func_call %= ID + opar + elem_list + cpar, lambda h, s: FuncCallNode(s[1], s[3])
 
-        expression %= expression + plus + term, lambda h, s: PlusNode(s[1], s[3])
-        expression %= expression + minus + term, lambda h, s: MinusNode(s[1], s[3])
-        expression %= term, lambda h, s: s[1]
+        bool_or_expression %= bool_or_expression + andt + compare_expression, lambda h, s: AndNode(s[1], s[3])
+        bool_or_expression %= bool_or_expression + ort + compare_expression, lambda h, s: OrNode(s[1], s[3])
+        bool_or_expression %= negate + compare_expression, lambda h, s: NegateBooleanNode(s[2])
+        bool_or_expression %= compare_expression, lambda h, s: s[1]
+
+        compare_expression %= compare_expression + equal + arithmetic_expression, lambda h, s: EqualNode(s[1], s[3])
+        compare_expression %= compare_expression + not_equal + arithmetic_expression, lambda h, s: NotEqualNode(s[1], s[3])
+        compare_expression %= compare_expression + great_eq + arithmetic_expression, lambda h, s: GreatEqNode(s[1], s[3])
+        compare_expression %= compare_expression + less_eq + arithmetic_expression, lambda h, s: LessEqNode(s[1], s[3])
+        compare_expression %= compare_expression + less + arithmetic_expression, lambda h, s: LessNode(s[1], s[3])
+        compare_expression %= compare_expression + great + arithmetic_expression, lambda h, s: GreatNode(s[1], s[3])
+        compare_expression %= arithmetic_expression, lambda h, s: s[1]
+
+        arithmetic_expression %= arithmetic_expression + plus + term, lambda h, s: PlusNode(s[1], s[3])
+        arithmetic_expression %= arithmetic_expression + minus + term, lambda h, s: MinusNode(s[1], s[3])
+        arithmetic_expression %= term, lambda h, s: s[1]
 
         term %= term + mul + factor, lambda h, s: MulNode(s[1], s[3])
         term %= term + div + factor, lambda h, s: DivNode(s[1], s[3])
         term %= factor, lambda h, s: s[1]
 
-        factor %= opar + expression + cpar, lambda h, s: ParenthesisNode(s[2])
+        factor %= opar + arithmetic_expression + cpar, lambda h, s: ParenthesisNode(s[2])
         factor %= atom, lambda h, s: s[1]
 
         atom %= int_number, lambda h, s: IntNode(s[1])
@@ -186,5 +188,7 @@ class BotGrammar:
         atom %= ID, lambda h, s: VariableNode(s[1])
         atom %= func_call, lambda h, s: s[1]
         atom %= date_type, lambda h, s: DateNode(s[1])
+        atom %= truet, lambda h, s: BoolNode(s[1])
+        atom %= falset, lambda h, s: BoolNode(s[1])
 
         return G

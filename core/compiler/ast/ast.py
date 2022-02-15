@@ -137,6 +137,18 @@ class NegateBooleanNode(UnaryNode):
         super().__init__(node)
 
 
+class AndNode(BinaryNode):
+
+    def __init__(self, left, right):
+        super().__init__(left, right)
+
+
+class OrNode(BinaryNode):
+
+    def __init__(self, left, right):
+        super().__init__(left, right)
+
+
 class ParenthesisNode(UnaryNode):
 
     def __init__(self, node):
