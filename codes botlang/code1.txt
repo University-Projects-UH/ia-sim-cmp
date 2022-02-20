@@ -1,17 +1,22 @@
-asset btc = CreateAsset("BTC-USD.csv");
-asset eth = CreateAsset("ETH-USD.csv");
-asset btcCopy = btc;
+asset a = CreateAsset("ETH-USD.csv");
+asset b = CreateAsset("BTC-USD.csv");
+asset c = CreateAsset("ADA-USD.csv");
 
-array portfolioSharpeRatio = PortfolioMSR(2020-02-12, [btc, eth, CreateAsset("BTC-USD.csv")]);
+array minRisk = PortfolioMSR(2022-02-10, [a, b, c]);
+array maxSharpeRatio = PortfolioSDMin(2022-02-10, [a, b, c]);
 
-array portfolioMinSD = PortfolioSDMin(2020-02-12, [btc, eth, CreateAsset("BTC-USD.csv")]);
+print minRisk;
+print maxSharpeRatio;
 
-grid_bot karel = grid_bot("Calamardo", 800, 2100, 100, 5, 1000, 2000, [btc]);
+grid_bot grid = grid_bot("grid", 800, 2100, 100, 5, 1000, 2000, [CreateAsset("BTC-USD.csv")]);
+smart_bot smart = smart_bot("smart", 0, 100100, 100, [CreateAsset("BTC-USD.csv")]);
+rebalance_bot rebalanceMR = rebalance_bot("rebalance", 0, 100100, 100, [a, b, c], 0.2, minRisk);
+rebalance_bot rebalanceMSR = rebalance_bot("rebalance", 0, 100100, 100, [a, b, c], 0.2, maxSharpeRatio);
 
-rebalance_bot frank = rebalance_bot("Frank", 0, 100, 100, [btc, CreateAsset("ETH-USD.csv"), btcCopy]);
-
-smart_bot alben = smart_bot("Alben", 800, 2100, 1000, [eth]);
-
-
-print(portfolioSharpeRatio);
-print(portfolioMinSD);
+StartBot(grid, True);
+print "\n";
+StartBot(smart, False);
+print "\n";
+StartBot(rebalanceMR, True);
+print "\n";
+StartBot(rebalanceMSR, True);
