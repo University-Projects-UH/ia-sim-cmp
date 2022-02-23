@@ -2,6 +2,7 @@ from .asset.asset import Asset
 from .bots.grid_bot import GridBot
 from .bots.rebalance_bot import RebalanceBot
 from .bots.smart_bot import SmartBot
+from .bots.optimization_grid_bot import grid_bot_optimization
 
 # grammar related
 from .compiler.grammar.grammar import Grammar, Sentence, Production

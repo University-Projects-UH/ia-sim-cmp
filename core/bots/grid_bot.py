@@ -2,6 +2,8 @@ from .bot import Bot
 from .order import Order
 import datetime
 
+EPSILON = 1e-7
+
 class GridBot(Bot):
     # asset_pair: array with two assets
     # assetA / assetB
@@ -31,13 +33,17 @@ class GridBot(Bot):
 
     def get_floor_grid(self, price):
         if(price < self.limit_low):
-            return None
+            return -1
+        if price + EPSILON >= self.limit_high:
+            return self.grids_count - 1
         diff = price - self.limit_low
         return int(diff // self.grid_len)
 
     def get_ceil_grid(self, price):
         if(price > self.limit_high):
-            return None
+            return self.grids_count
+        if price + EPSILON <= self.limit_low:
+            return 0
         diff = (price + self.grid_len) - self.limit_low
         return int(diff // self.grid_len)
 
@@ -125,16 +131,21 @@ class GridBot(Bot):
         if show_history:
             self.print_operation_history()
 
-    def start_bot(self, show_history = False, date = None):
+    def start_bot(self, show_history = False, date = None, end_date = None):
         if(date is None):
             date = self.get_lower_date()
 
         start_date = date
-        max_date = self.get_upper_date()
+
+        if end_date is None:
+            max_date = self.get_upper_date()
+        else:
+            max_date = end_date
+
         last_price = self.get_price_at_date(date)
 
         if(self.verify_sl_and_tp(last_price)):
-            self.print_summary(start_date, max_date, show_history)
+            #self.print_summary(start_date, max_date, show_history)
             return
 
         self.initialize_bot(date)
@@ -150,5 +161,5 @@ class GridBot(Bot):
             date += datetime.timedelta(days = 1)
 
         self.close_bot_at_price(last_price)
-        self.print_summary(start_date, max_date, show_history)
+        #self.print_summary(start_date, max_date, show_history)
 
