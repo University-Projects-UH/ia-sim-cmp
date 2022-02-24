@@ -1,5 +1,11 @@
 asset a = CreateAsset("btc-usd_2021-01-01_2021-03-31.csv");
 
-grid_bot grid = grid_bot_optimization([a], 10, 10);
+grid_bot grid = grid_bot_optimization([a], 100, 10, 10);
+
+grid_bot grid2 = grid_bot("grid2", 28000, 65000, 100, 2, 30000, 60000, [a]);
 
 StartBot(grid, True);
+
+print "\n";
+
+StartBot(grid2, True);

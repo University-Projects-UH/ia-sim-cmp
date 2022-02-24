@@ -171,10 +171,10 @@ class SemanticChecker(object):
     @visitor.when(GridBotOptimizationNode)
     def visit(self, node, variables = {}):
 
-        if len(node.params) > 3 or len(node.params) < 1:
+        if len(node.params) > 4 or len(node.params) < 2:
             return self.get_different_params_len(), None
 
-        types = ["list_asset", "int", "int"]
+        types = ["list_asset", "number", "int", "int"]
 
         for i, param in enumerate(node.params):
             error, _type = self.visit(param, variables)

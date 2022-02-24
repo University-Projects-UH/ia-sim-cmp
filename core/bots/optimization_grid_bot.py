@@ -64,7 +64,7 @@ def evaluate_bots_variation(bot_list):
 
     return best, profit
 
-def grid_bot_optimization(assets, exploration_count = 15, explotation_count = 15):
+def grid_bot_optimization(assets, investment, exploration_count = 15, explotation_count = 15):
 
     min_value, max_value = get_asset_bounds(assets)
     mid_value = (max_value + min_value) / 2
@@ -80,7 +80,7 @@ def grid_bot_optimization(assets, exploration_count = 15, explotation_count = 15
         local_max = random.uniform(mid_value, max_value)
         local_grids = random.randint(5,15)
 
-        bot = GridBot('bot', min_value - local_min/2, max_value + local_max/2, 100, local_grids, local_min, local_max, assets)
+        bot = GridBot('bot', min_value - local_min/2, max_value + local_max/2, investment, local_grids, local_min, local_max, assets)
         bot.start_bot()
 
         best_local_profit = bot.profit

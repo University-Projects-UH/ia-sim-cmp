@@ -13,6 +13,6 @@ def test_answer():
 
     assets = [a1]
     
-    best = grid_bot_optimization(assets, 10, 10)
+    best = grid_bot_optimization(assets, 100, 10, 10)
 
     assert isinstance(best, GridBot)
