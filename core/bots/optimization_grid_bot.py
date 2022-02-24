@@ -4,10 +4,18 @@ import datetime
 import random
 from math import inf
 
-def get_asset_bounds(assets, lower_date, upper_date):
+def get_asset_bounds(assets):
 
     max_value = -inf
     min_value = inf
+
+    lower_date = assets[0].start_date
+    for asset in assets[1:]:
+        low_date = min(low_date, asset.start_date)
+
+    upper_date = assets[0].end_date
+    for asset in assets[1:]:
+        upper_date = min(upper_date, asset.end_date)
 
     while lower_date <= upper_date:
 
@@ -40,14 +48,14 @@ def bots_variation(bot):
 
     return [bot1, bot2, bot3, bot4, bot5]
 
-def evaluate_bots_variation(bot_list, lower_date, upper_date):
+def evaluate_bots_variation(bot_list):
 
     best = None
     profit = -inf
 
     for bot in bot_list:
          
-         bot.start_bot(date = lower_date, end_date = upper_date)
+         bot.start_bot()
 
          if bot.profit > profit:
 
@@ -56,18 +64,9 @@ def evaluate_bots_variation(bot_list, lower_date, upper_date):
 
     return best, profit
 
-def grid_bot_optimization(assets):
+def grid_bot_optimization(assets, exploration_count = 15, explotation_count = 15):
 
-    ### The period of time for run the bot is (upper_date, lower_date)
-
-    upper_date = assets[0].end_date
-    for asset in assets[1:]:
-        upper_date = min(upper_date, asset.end_date)
-
-    td = datetime.timedelta(100)
-    lower_date = upper_date - td
-
-    min_value, max_value = get_asset_bounds(assets, lower_date, upper_date)
+    min_value, max_value = get_asset_bounds(assets)
     mid_value = (max_value + min_value) / 2
 
     ### Exploration of the metaheuristic
@@ -75,24 +74,24 @@ def grid_bot_optimization(assets):
     best_global_profit = -inf
     best_global_bot = None
 
-    for i in range(15):
+    for i in range(exploration_count):
 
         local_min = random.uniform(min_value, mid_value)
         local_max = random.uniform(mid_value, max_value)
         local_grids = random.randint(5,15)
 
         bot = GridBot('bot', min_value - local_min/2, max_value + local_max/2, 100, local_grids, local_min, local_max, assets)
-        bot.start_bot( date = lower_date, end_date = upper_date)
+        bot.start_bot()
 
         best_local_profit = bot.profit
         best_local_bot = bot
 
         ### Explotation of the metaheuristic
 
-        for j in range(10):
+        for j in range(explotation_count):
 
             new_bots = bots_variation(best_local_bot)
-            best, profit = evaluate_bots_variation(new_bots, lower_date, upper_date)
+            best, profit = evaluate_bots_variation(new_bots)
             #print("profit: " + str(profit))
 
             if profit > best_local_profit:
@@ -114,20 +113,6 @@ def grid_bot_optimization(assets):
     # print("grids: " + str(best_global_bot.grids_count - 1))
     # print("high: " + str(best_global_bot.limit_high))
     # print("low: " + str(best_global_bot.limit_low))
+
     return best_global_bot
-
-
-
-            
-
-
-
-
-
-
-
-
-
-
-
     
