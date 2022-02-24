@@ -2,6 +2,8 @@ from .bot import Bot
 from .order import Order
 import datetime
 
+EPSILON = 1e-7
+
 class GridBot(Bot):
     # asset_pair: array with two assets
     # assetA / assetB
@@ -31,13 +33,17 @@ class GridBot(Bot):
 
     def get_floor_grid(self, price):
         if(price < self.limit_low):
-            return None
+            return -1
+        if price + EPSILON >= self.limit_high:
+            return self.grids_count - 1
         diff = price - self.limit_low
         return int(diff // self.grid_len)
 
     def get_ceil_grid(self, price):
         if(price > self.limit_high):
-            return None
+            return self.grids_count
+        if price + EPSILON <= self.limit_low:
+            return 0
         diff = (price + self.grid_len) - self.limit_low
         return int(diff // self.grid_len)
 
@@ -118,19 +124,25 @@ class GridBot(Bot):
 
 
     def print_summary(self, start_date, max_date, show_history):
-        print("Start date: " + str(start_date))
-        print("End date: " + str(max_date))
-        percent_profit = (self.profit * 100) / self.investment
-        print("Profit: " + str(self.profit) + " | " + str(percent_profit) + "%")
         if show_history:
+            print("Start date: " + str(start_date))
+            print("End date: " + str(max_date))
+            percent_profit = (self.profit * 100) / self.investment
+            print("Profit: " + str(self.profit) + " | " + str(percent_profit) + "%")
+            #if show_history:
             self.print_operation_history()
 
-    def start_bot(self, show_history = False, date = None):
+    def start_bot(self, show_history = False, date = None, end_date = None):
         if(date is None):
             date = self.get_lower_date()
 
         start_date = date
-        max_date = self.get_upper_date()
+
+        if end_date is None:
+            max_date = self.get_upper_date()
+        else:
+            max_date = end_date
+
         last_price = self.get_price_at_date(date)
 
         if(self.verify_sl_and_tp(last_price)):

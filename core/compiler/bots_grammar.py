@@ -1,5 +1,5 @@
 from core import Grammar, Production
-from .ast.ast import AndNode, DateNode, ProgramNode, GridBotDeclarationNode, RebalanceBotDeclarationNode, SmartBotDeclarationNode
+from .ast.ast import AndNode, DateNode, ProgramNode, GridBotDeclarationNode, RebalanceBotDeclarationNode, SmartBotDeclarationNode, GridBotOptimizationNode
 from .ast.ast import AssetDeclarationNode
 from .ast.ast import IntDeclarationNode, BoolDeclarationNode, FloatDeclarationNode, ReAssignNode, DateDeclarationNode
 from .ast.ast import NegateBooleanNode, ParenthesisNode
@@ -88,6 +88,7 @@ class BotGrammar:
         string_exp = G.add_terminal('string_exp')
         arrayt = G.add_terminal('array')
         andt, ort = G.add_terminals('and or')
+        grid_bot_optimization = G.add_terminal('grid_bot_optimization')
 
 
         ###############################################
@@ -119,6 +120,7 @@ class BotGrammar:
         string_declaration %= stringt + ID + assign + ID, lambda h, s: StringDeclarationNode(s[2], VariableNode(s[4]))
 
         grid_bot_declaration %= grid_bot + ID + assign + grid_bot + opar + elem_list + cpar, lambda h, s: GridBotDeclarationNode(s[2], s[6])
+        grid_bot_declaration %= grid_bot + ID + assign + grid_bot_optimization + opar + elem_list + cpar, lambda h, s: GridBotDeclarationNode(s[2], GridBotOptimizationNode(s[6]))
         grid_bot_declaration %= grid_bot + ID + assign + ID, lambda h, s: GridBotDeclarationNode(s[2], VariableNode(s[4]))
 
         rebalance_bot_declaration %= rebalance_bot + ID + assign + rebalance_bot + opar + elem_list + cpar, lambda h, s: RebalanceBotDeclarationNode(s[2], s[6])

@@ -33,13 +33,14 @@ KEYWORDS = [
     'or',
     'portfolio_max_sharpe_ratio',
     'portfolio_min_sd',
-    'array'
+    'array',
+    'grid_bot_optimization'
 ]
 SYMBOLS = [
     '+', '-', '/', '*', '(', ')', '!', ',',
     '<', '>', '[', ']', '<=', '=>', '=', '==', ';', '!='
 ]
-symbols = ['+', " ", '-', '/', '*', '(', ')', '!', '<', '>', '[', ']', ';', '=', ".", "\\"]
+symbols = ['+', " ", '-', '/', '*', '(', ')', '!', '<', '>', '[', ']', ';', '=', ".", '_', "\\"]
 symbols = digit + "|" + letter + "|" + "|".join(symbols)
 
 SPACE = '{ |\n|\t|\f|\r|\v}{ |\n|\t|\f|\r|\v}^'
