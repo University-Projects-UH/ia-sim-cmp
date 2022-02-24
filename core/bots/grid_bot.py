@@ -124,11 +124,12 @@ class GridBot(Bot):
 
 
     def print_summary(self, start_date, max_date, show_history):
-        print("Start date: " + str(start_date))
-        print("End date: " + str(max_date))
-        percent_profit = (self.profit * 100) / self.investment
-        print("Profit: " + str(self.profit) + " | " + str(percent_profit) + "%")
         if show_history:
+            print("Start date: " + str(start_date))
+            print("End date: " + str(max_date))
+            percent_profit = (self.profit * 100) / self.investment
+            print("Profit: " + str(self.profit) + " | " + str(percent_profit) + "%")
+            #if show_history:
             self.print_operation_history()
 
     def start_bot(self, show_history = False, date = None, end_date = None):
@@ -145,7 +146,7 @@ class GridBot(Bot):
         last_price = self.get_price_at_date(date)
 
         if(self.verify_sl_and_tp(last_price)):
-            #self.print_summary(start_date, max_date, show_history)
+            self.print_summary(start_date, max_date, show_history)
             return
 
         self.initialize_bot(date)
@@ -161,5 +162,5 @@ class GridBot(Bot):
             date += datetime.timedelta(days = 1)
 
         self.close_bot_at_price(last_price)
-        #self.print_summary(start_date, max_date, show_history)
+        self.print_summary(start_date, max_date, show_history)
 

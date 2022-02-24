@@ -101,7 +101,7 @@ class SemanticChecker(object):
         bot_type = type(node).__name__
         params_type = type(node.params).__name__
 
-        if(params_type == "VariableNode"):
+        if(params_type == "VariableNode") or (params_type == "GridBotOptimizationNode"):
             error, _type = self.visit(node.params, variables)
             if(error):
                 return error, None
@@ -167,6 +167,23 @@ class SemanticChecker(object):
             if(error):
                 errors += [(i + 1, error)]
         return errors
+
+    @visitor.when(GridBotOptimizationNode)
+    def visit(self, node, variables = {}):
+
+        if len(node.params) > 3 or len(node.params) < 1:
+            return self.get_different_params_len(), None
+
+        types = ["list_asset", "int", "int"]
+
+        for i, param in enumerate(node.params):
+            error, _type = self.visit(param, variables)
+            if(error is not None):
+                return error, None
+            if(_type not in types_check[types[i]]):
+                return self.get_param_error(), None
+        
+        return None, "GridBotDeclarationNode"
 
     @visitor.when(GridBotDeclarationNode)
     def visit(self, node, variables = {}):

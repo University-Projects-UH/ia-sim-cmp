@@ -1,4 +1,5 @@
 from core import Asset
+from core import GridBot
 from datetime import datetime
 from core import grid_bot_optimization
 
@@ -14,4 +15,4 @@ def test_answer():
     
     best = grid_bot_optimization(assets, 10, 10)
 
-    assert True == False
+    assert isinstance(best, GridBot)

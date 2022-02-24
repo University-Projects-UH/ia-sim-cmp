@@ -19,7 +19,8 @@ class BotTranspiler(object):
         ans = "from core import GridBot, RebalanceBot, SmartBot\n"
         ans += "from core import Asset\n"
         ans += "from datetime import datetime\n"
-        ans += "from core import PortfolioSdMin, PortfolioSharpeRatio\n\n"
+        ans += "from core import PortfolioSdMin, PortfolioSharpeRatio\n"
+        ans += "from core import grid_bot_optimization\n\n"
 
         for stat in node.statements:
             print(self.visit(stat))
@@ -33,8 +34,15 @@ class BotTranspiler(object):
     def visit(self, node, tabs=0):
         if(type(node.params).__name__ == "VariableNode"):
             ans = str(node.id) + " = " + str(node.params.lex)
+        elif type(node.params).__name__ == "GridBotOptimizationNode":
+            ans = str(node.id) + " = " + self.visit(node.params)
         else:
             ans = str(node.id) + " = " + "GridBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
+        return ans
+
+    @visitor.when(GridBotOptimizationNode)
+    def visit(self, node, tabs = 0):
+        ans = "grid_bot_optimization(" + ", ".join(self.visit(param) for param in node.params) + ")"
         return ans
 
     @visitor.when(RebalanceBotDeclarationNode)
