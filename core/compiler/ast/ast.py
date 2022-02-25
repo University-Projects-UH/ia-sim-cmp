@@ -50,11 +50,6 @@ class GridBotDeclarationNode(BotDeclaration):
         super().__init__(id, params)
 
 
-class GridBotOptimizationNode():
-
-    def __init__(self, params):
-        self.params = params
-
 
 class RebalanceBotDeclarationNode(BotDeclaration):
 

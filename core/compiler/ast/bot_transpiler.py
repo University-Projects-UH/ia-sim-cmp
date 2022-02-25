@@ -5,7 +5,9 @@ parse_function = {
     "CreateAsset": lambda params: f"Asset({', '.join(params)})",
     "PortfolioMSR": lambda params: f"PortfolioSharpeRatio({', '.join(params)}).run()",
     "PortfolioSDMin": lambda params: f"PortfolioSdMin({', '.join(params)}).run()",
-    "StartBot": lambda params: f"{params[0]}.start_bot({', '.join(params[1:])})"
+    "StartBot": lambda params: f"{params[0]}.start_bot({', '.join(params[1:])})",
+    "GridBotOpt": lambda params: f"grid_bot_optimization({', '.join(params)})",
+    "RebalanceBotOpt": lambda params: f"RebalanceBotOpt({', '.join(params)}).optimize()"
 }
 
 class BotTranspiler(object):
@@ -20,7 +22,8 @@ class BotTranspiler(object):
         ans += "from core import Asset\n"
         ans += "from datetime import datetime\n"
         ans += "from core import PortfolioSdMin, PortfolioSharpeRatio\n"
-        ans += "from core import grid_bot_optimization\n\n"
+        ans += "from core import grid_bot_optimization\n"
+        ans += "from core import RebalanceBotOpt\n\n"
 
         for stat in node.statements:
             print(self.visit(stat))
@@ -34,21 +37,18 @@ class BotTranspiler(object):
     def visit(self, node, tabs=0):
         if(type(node.params).__name__ == "VariableNode"):
             ans = str(node.id) + " = " + str(node.params.lex)
-        elif type(node.params).__name__ == "GridBotOptimizationNode":
+        elif(type(node.params).__name__ == "FuncCallNode"):
             ans = str(node.id) + " = " + self.visit(node.params)
         else:
             ans = str(node.id) + " = " + "GridBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
-        return ans
-
-    @visitor.when(GridBotOptimizationNode)
-    def visit(self, node, tabs = 0):
-        ans = "grid_bot_optimization(" + ", ".join(self.visit(param) for param in node.params) + ")"
         return ans
 
     @visitor.when(RebalanceBotDeclarationNode)
     def visit(self, node, tabs=0):
         if(type(node.params).__name__ == "VariableNode"):
             ans = str(node.id) + " = " + str(node.params.lex)
+        elif(type(node.params).__name__ == "FuncCallNode"):
+            ans = str(node.id) + " = " + self.visit(node.params)
         else:
             ans = str(node.id) + " = " + "RebalanceBot(" + ", ".join(self.visit(param) for param in node.params) + ")"
         return ans

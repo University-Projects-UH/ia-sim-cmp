@@ -23,12 +23,6 @@ class FormatVisitor(object):
         params = '\n'.join(self.visit(param, tabs + 1) for param in node.params)
         return f'{ans}\n{params}'
 
-    @visitor.when(GridBotOptimizationNode)
-    def visit(self, node, tabs = 0):
-        ans = '\t' * tabs + f'\\__GridBotOptimizationNode'
-        params = '\n'.join(self.visit(param, tabs + 1) for param in node.params)
-        return f'{ans}\n{params}'
-
     @visitor.when(RebalanceBotDeclarationNode)
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__RebalanceBotDeclarationNode: {node.id}'

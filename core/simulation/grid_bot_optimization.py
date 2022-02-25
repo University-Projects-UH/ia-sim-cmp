@@ -63,7 +63,7 @@ def evaluate_bots_variation(bot_list):
 
     return best, profit
 
-def grid_bot_optimization(assets, investment, exploration_count = 15, explotation_count = 15):
+def grid_bot_optimization(assets, investment = 100, exploration_count = 15, explotation_count = 15):
 
     min_value, max_value = get_asset_bounds(assets)
     mid_value = (max_value + min_value) / 2

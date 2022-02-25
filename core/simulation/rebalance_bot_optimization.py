@@ -4,10 +4,8 @@ from core import RebalanceBot
 EPS = 1e-7
 
 class RebalanceBotOpt:
-    def __init__(self, assets_array, rebalance_ratio = 0.4, start_date = None, max_date = None):
+    def __init__(self, assets_array, rebalance_ratio = 0.4, investment = 100):
         self.assets_array = assets_array
-        self.start_date = start_date
-        self.max_date = max_date
         self.rebalance_ratio = rebalance_ratio
 
     def get_random_portfolios(self, assets_len, count = 300):
@@ -30,7 +28,7 @@ class RebalanceBotOpt:
 
     def run_bot(self, assets_array, portfolio, rebalance_ratio):
         rebalance_bot = RebalanceBot("", -1000, 1000, 100, assets_array, rebalance_ratio, portfolio)
-        return rebalance_bot.start_bot(date=self.start_date, show_info = False)
+        return rebalance_bot.start_bot(show_info = False)
 
     def get_best_rebalance_ratio(self, assets_array, rebalance_ratio):
         portfolios = self.get_random_portfolios(len(assets_array), 5)
@@ -106,11 +104,9 @@ class RebalanceBotOpt:
         return best_portfolio, best_profit
 
 
-    def get_best_rebalance_bot(self):
+    def optimize(self):
         best_rebalance_ratio = self.get_best_rebalance_ratio(self.assets_array, self.rebalance_ratio)
         best_portfolio, _ = self.get_best_portfolio(self.assets_array, best_rebalance_ratio)
         return RebalanceBot("BestRebalanceBot", -1000, 1000, 100, self.assets_array, best_rebalance_ratio,\
                             best_portfolio)
-
-
 

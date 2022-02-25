@@ -33,8 +33,7 @@ KEYWORDS = [
     'or',
     'portfolio_max_sharpe_ratio',
     'portfolio_min_sd',
-    'array',
-    'grid_bot_optimization'
+    'array'
 ]
 SYMBOLS = [
     '+', '-', '/', '*', '(', ')', '!', ',',

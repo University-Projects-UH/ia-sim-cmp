@@ -30,14 +30,27 @@ defaultFunctionsReturn = {
     "PortfolioMSR": "FloatArray",
     "PortfolioSDMin": "FloatArray",
     "CreateAsset": "AssetNode",
-    "StartBot": "None"
+    "StartBot": "None",
+    "GridBotOpt": "GridBotDeclarationNode",
+    "RebalanceBotOpt": "RebalanceBotDeclarationNode"
+}
+
+countFunctionsParams = {
+    "PortfolioMSR": (2, 2),
+    "PortfolioSDMin": (2, 2),
+    "CreateAsset": (1, 1),
+    "StartBot": (2, 2),
+    "GridBotOpt": (1, 4),
+    "RebalanceBotOpt": (1, 3)
 }
 
 defaultFunctionsParams = {
     "PortfolioMSR": ["date", "list_asset"],
     "PortfolioSDMin": ["date", "list_asset"],
     "CreateAsset": ["string"],
-    "StartBot": ["bot", "boolean"]
+    "StartBot": ["bot", "boolean"],
+    "GridBotOpt": ["list_asset", "number", "int", "int"],
+    "RebalanceBotOpt": ["list_asset", "float", "number"]
 }
 
 class SemanticChecker(object):
@@ -81,8 +94,9 @@ class SemanticChecker(object):
     def check_func_call(self, node, variables):
         function_return_type = defaultFunctionsReturn[node.lex]
         function_params_types = defaultFunctionsParams[node.lex]
+        count_params = countFunctionsParams[node.lex]
 
-        if(len(function_params_types) != len(node.params)):
+        if(len(node.params) < count_params[0] or len(node.params) > count_params[1]):
             return self.get_different_params_len(), None
 
         for i, param in enumerate(node.params):
@@ -90,8 +104,8 @@ class SemanticChecker(object):
             error, _type = self.visit(param, variables)
             if(error is not None):
                 return error
-            if(type_expected != _type):
-                self.get_param_error(), None
+            if(_type not in types_check[type_expected]):
+                return self.get_param_error(), None
             if(_type == "asset" and param.lex[1:-1] not in self.assets_accepted):
                 return self.get_asset_undefined_error(param.lex), None
 
@@ -101,7 +115,7 @@ class SemanticChecker(object):
         bot_type = type(node).__name__
         params_type = type(node.params).__name__
 
-        if(params_type == "VariableNode") or (params_type == "GridBotOptimizationNode"):
+        if(params_type == "VariableNode" or params_type == "FuncCallNode"):
             error, _type = self.visit(node.params, variables)
             if(error):
                 return error, None
@@ -109,6 +123,9 @@ class SemanticChecker(object):
                 return self.get_assign_error(), None
             variables[node.id] = bot_type
             return None, bot_type
+
+        if(type(node.params).__name__ != "list"):
+            return self.get_assign_error(), None
 
         if(len(node.params) not in params_expected):
             return self.get_different_params_len(), None
@@ -167,23 +184,6 @@ class SemanticChecker(object):
             if(error):
                 errors += [(i + 1, error)]
         return errors
-
-    @visitor.when(GridBotOptimizationNode)
-    def visit(self, node, variables = {}):
-
-        if len(node.params) > 4 or len(node.params) < 2:
-            return self.get_different_params_len(), None
-
-        types = ["list_asset", "number", "int", "int"]
-
-        for i, param in enumerate(node.params):
-            error, _type = self.visit(param, variables)
-            if(error is not None):
-                return error, None
-            if(_type not in types_check[types[i]]):
-                return self.get_param_error(), None
-        
-        return None, "GridBotDeclarationNode"
 
     @visitor.when(GridBotDeclarationNode)
     def visit(self, node, variables = {}):
