@@ -122,9 +122,11 @@ class BotGrammar:
         grid_bot_declaration %= grid_bot + ID + assign + grid_bot + opar + elem_list + cpar, lambda h, s: GridBotDeclarationNode(s[2], s[6])
         grid_bot_declaration %= grid_bot + ID + assign + grid_bot_optimization + opar + elem_list + cpar, lambda h, s: GridBotDeclarationNode(s[2], GridBotOptimizationNode(s[6]))
         grid_bot_declaration %= grid_bot + ID + assign + ID, lambda h, s: GridBotDeclarationNode(s[2], VariableNode(s[4]))
+        grid_bot_declaration %= grid_bot + ID + assign + func_call, lambda h, s: GridBotDeclarationNode(s[2], s[4])
 
         rebalance_bot_declaration %= rebalance_bot + ID + assign + rebalance_bot + opar + elem_list + cpar, lambda h, s: RebalanceBotDeclarationNode(s[2], s[6])
         rebalance_bot_declaration %= rebalance_bot + ID + assign + ID, lambda h, s: RebalanceBotDeclarationNode(s[2], VariableNode(s[4]))
+        rebalance_bot_declaration %= rebalance_bot + ID + assign + func_call, lambda h, s: RebalanceBotDeclarationNode(s[2], s[4])
 
         smart_bot_declaration %= smart_bot + ID + assign + smart_bot + opar + elem_list + cpar, lambda h, s: SmartBotDeclarationNode(s[2], s[6])
         smart_bot_declaration %= smart_bot + ID + assign + ID, lambda h, s: SmartBotDeclarationNode(s[2], VariableNode(s[4]))
