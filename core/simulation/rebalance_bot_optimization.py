@@ -103,10 +103,39 @@ class RebalanceBotOpt:
 
         return best_portfolio, best_profit
 
+    def print_bot_configuration(self, bot, _profit):
+
+        print("#######################\n")
+        print("BOT CONFIGURATION\n")
+
+        print("profit percent: " + str(_profit))
+        print("stop loss: " + str(bot.stop_loss))
+        print("take profit: " + str(bot.take_profit))
+        print("investment: " + str(bot.investment))
+        print("rebalance ratio: " + str(bot.rebalance_ratio))
+
+
+        print("assets files:")
+
+        for a in bot.assets_array:
+            print("\t" + str(a.name))
+
+        print("assets percent distribution:")
+        for a in bot.percent_array:
+            print("\t" + str(a))
+
+        print("\n#######################")
 
     def optimize(self):
         best_rebalance_ratio = self.get_best_rebalance_ratio(self.assets_array, self.rebalance_ratio)
+
         best_portfolio, _ = self.get_best_portfolio(self.assets_array, best_rebalance_ratio)
-        return RebalanceBot("BestRebalanceBot", -1000, 1000, 100, self.assets_array, best_rebalance_ratio,\
+
+        best_bot = RebalanceBot("BestRebalanceBot", -1000, 1000, 100, self.assets_array, best_rebalance_ratio,\
                             best_portfolio)
 
+        profit = best_bot.start_bot(False)
+
+        self.print_bot_configuration(best_bot, profit)
+
+        return best_bot

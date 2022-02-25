@@ -26,7 +26,6 @@ class BotTranspiler(object):
         ans += "from core import RebalanceBotOpt\n\n"
 
         for stat in node.statements:
-            print(self.visit(stat))
             ans += self.visit(stat) + '\n'
 
         f = open("code_transpiled.py", "w")
