@@ -1,5 +1,4 @@
-from .bot import Bot
-from .grid_bot import GridBot
+from core import GridBot
 import datetime
 import random
 from math import inf
@@ -35,7 +34,7 @@ def bots_variation(bot):
 
     bot1 = GridBot('high_plus', bot.stop_loss, max(bot.take_profit, bot.limit_high + v + 1), bot.investment, bot.grids_count - 1, bot.limit_low, bot.limit_high + v, bot.assets_array)
     bot2 = GridBot('high_minus', bot.stop_loss, max(bot.take_profit, bot.limit_high), bot.investment, bot.grids_count - 1, bot.limit_low, bot.limit_high - v, bot.assets_array)
-   
+
     bot3 = GridBot('low_plus', min(bot.stop_loss, bot.limit_low) , bot.take_profit, bot.investment, bot.grids_count - 1, bot.limit_low + v, bot.limit_high, bot.assets_array)
     bot4 = GridBot('low_minus', min(bot.stop_loss, bot.limit_low - v - 1), bot.take_profit, bot.investment, bot.grids_count - 1 , bot.limit_low - v, bot.limit_high, bot.assets_array)
 
@@ -54,7 +53,7 @@ def evaluate_bots_variation(bot_list):
     profit = -inf
 
     for bot in bot_list:
-         
+
          bot.start_bot()
 
          if bot.profit > profit:
@@ -100,7 +99,7 @@ def grid_bot_optimization(assets, investment, exploration_count = 15, explotatio
                 best_local_profit = profit
 
         #print("\nbest_local_profit: " + str(best_local_profit) + "\n")
-        
+
         if best_local_profit > best_global_profit:
 
             best_global_bot = best_local_bot
@@ -115,4 +114,4 @@ def grid_bot_optimization(assets, investment, exploration_count = 15, explotatio
     # print("low: " + str(best_global_bot.limit_low))
 
     return best_global_bot
-    
+

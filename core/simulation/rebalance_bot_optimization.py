@@ -3,7 +3,7 @@ from core import RebalanceBot
 
 EPS = 1e-7
 
-class RebalanceBotSimulation:
+class RebalanceBotOpt:
     def __init__(self, assets_array, rebalance_ratio = 0.4, start_date = None, max_date = None):
         self.assets_array = assets_array
         self.start_date = start_date
