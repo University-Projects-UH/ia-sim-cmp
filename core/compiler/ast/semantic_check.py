@@ -103,10 +103,10 @@ class SemanticChecker(object):
             type_expected = function_params_types[i]
             error, _type = self.visit(param, variables)
             if(error is not None):
-                return error
+                return error, None
             if(_type not in types_check[type_expected]):
                 return self.get_param_error(), None
-            if(_type == "asset" and param.lex[1:-1] not in self.assets_accepted):
+            if(node.lex == "CreateAsset" and param.lex[1:-1] not in self.assets_accepted):
                 return self.get_asset_undefined_error(param.lex), None
 
         return None, function_return_type

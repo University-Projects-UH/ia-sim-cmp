@@ -1,7 +1,7 @@
 import pandas as pd
 import datetime
 
-path = "core/asset/assets_data/"
+path = "csv/assets_data/"
 
 class Asset:
     # asset_data contains:

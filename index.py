@@ -10,7 +10,7 @@ import sys
 import string
 
 def get_assets_availables():
-    source_path = "core/asset/assets_data"
+    source_path = "csv/assets_data"
     text_arr = []
     for _, _, filenames in walk(source_path):
         text_arr.extend(filenames)
