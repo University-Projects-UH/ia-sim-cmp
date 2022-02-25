@@ -64,6 +64,25 @@ def evaluate_bots_variation(bot_list):
 
     return best, profit
 
+def print_bot_configuration(bot):
+
+    print("#######################\n")
+    print("BOT CONFIGURATION\n")
+
+    print("profit: " + str(bot.profit))
+    print("stop loss: " + str(bot.stop_loss))
+    print("take profit: " + str(bot.take_profit))
+    print("investment: " + str(bot.investment))
+    print("grids: " + str(bot.grids_count - 1))
+    print("limit low: " + str(bot.limit_low))
+    print("limit high: " + str(bot.limit_high))
+    print("assets files:")
+
+    for a in bot.assets_array:
+        print("\t" + str(a.name))
+
+    print("\n#######################")
+
 def grid_bot_optimization(assets, investment, exploration_count = 15, explotation_count = 15):
 
     min_value, max_value = get_asset_bounds(assets)
@@ -108,11 +127,7 @@ def grid_bot_optimization(assets, investment, exploration_count = 15, explotatio
 
             #print("\nbest_global_profit: " + str(best_global_profit) + "\n")
 
-    # print("\n\n")
-    # print("profit: " + str(best_global_profit))
-    # print("grids: " + str(best_global_bot.grids_count - 1))
-    # print("high: " + str(best_global_bot.limit_high))
-    # print("low: " + str(best_global_bot.limit_low))
+    print_bot_configuration(best_global_bot)
 
     return best_global_bot
     
