@@ -1,21 +1,19 @@
 from . import visitor as visitor
 from .ast import *
+import re
+from datetime import datetime
 
 types_check = {
-    "number": ["FloatNode", "IntNode", "FloatDeclarationNode", "IntDeclarationNode", \
-               "DivNode", "MulNode", "MinusNode", "PlusNode"],
-    "int": ["IntNode", "IntDeclarationNode", "DivNode", "MulNode", "MinusNode", \
-            "PlusNode"],
-    "float": ["FloatNode", "FloatDeclarationNode", "DivNode", "MulNode", "MinusNode", \
-              "PlusNode"],
-    "string": ["StringNode", "StringDeclarationNode"],
-    "date": ["DateNode", "DateDeclarationNode"],
-    "boolean": ["BoolNode", "GreatNode", "LessNode", "GreatEqNode", "LessEqNode", \
-                "NotEqualNode", "EqualNode"],
-    "array": ["ArrayNode", "ArrayDeclarationNode"],
-    "list_asset": ["ArrayNode", "ArrayDeclarationNode"],
-    "list_float": ["ArrayNode", "ArrayDeclarationNode"],
-    "asset": ["FuncCallNode", "AssetDeclarationNode"],
+    "number": ["FloatNode", "IntNode"],
+    "int": ["IntNode"],
+    "float": ["FloatNode"],
+    "string": ["StringNode"],
+    "date": ["DateNode"],
+    "boolean": ["BoolNode"],
+    "array": ["ArrayNode"],
+    "list_asset": ["AssetArray"],
+    "list_float": ["FloatArray"],
+    "asset": ["AssetNode"],
     "bot": ["GridBotDeclarationNode", "RebalanceBotDeclarationNode", "SmartBotDeclarationNode"]
 }
 
@@ -29,17 +27,30 @@ map_nodes = {
 }
 
 defaultFunctionsReturn = {
-    "PortfolioMSR": "array_float",
-    "PortfolioSDMin": "array_float",
-    "CreateAsset": "asset",
-    "StartBot": "None"
+    "PortfolioMSR": "FloatArray",
+    "PortfolioSDMin": "FloatArray",
+    "CreateAsset": "AssetNode",
+    "StartBot": "None",
+    "GridBotOpt": "GridBotDeclarationNode",
+    "RebalanceBotOpt": "RebalanceBotDeclarationNode"
+}
+
+countFunctionsParams = {
+    "PortfolioMSR": (2, 2),
+    "PortfolioSDMin": (2, 2),
+    "CreateAsset": (1, 1),
+    "StartBot": (2, 2),
+    "GridBotOpt": (1, 4),
+    "RebalanceBotOpt": (1, 3)
 }
 
 defaultFunctionsParams = {
     "PortfolioMSR": ["date", "list_asset"],
     "PortfolioSDMin": ["date", "list_asset"],
     "CreateAsset": ["string"],
-    "StartBot": ["bot", "boolean"]
+    "StartBot": ["bot", "boolean"],
+    "GridBotOpt": ["list_asset", "number", "int", "int"],
+    "RebalanceBotOpt": ["list_asset", "float", "number"]
 }
 
 class SemanticChecker(object):
@@ -53,8 +64,17 @@ class SemanticChecker(object):
     def get_declared_twice_error(self, id):
         return f"La variable '{id}' ya ha sido declarada antes"
 
-    def get_compare_error(self):
+    def get_compare_type_error(self):
         return "No puedes comparar dos tipos diferentes"
+
+    def get_compare_undefined_error(self, _type):
+        return f"Comparación no soportada por el tipo {_type}"
+
+    def get_operation_type_error(self):
+        return "No puedes realizar una operación entre  dos tipos diferentes"
+
+    def get_operation_undefined_error(self, _type):
+        return f"Operación no soportada por el tipo {_type}"
 
     def get_assign_error(self):
         return "No puedes asignar un tipo diferente a otro"
@@ -71,367 +91,432 @@ class SemanticChecker(object):
     def get_asset_undefined_error(self, lex):
         return f"El activo {lex} no existe"
 
-    def check_func_call(self, func_call_node, _type, variables):
-        try:
-            function_return_type = defaultFunctionsReturn[func_call_node.lex]
-            function_params_types = defaultFunctionsParams[func_call_node.lex]
+    def check_func_call(self, node, variables):
+        function_return_type = defaultFunctionsReturn[node.lex]
+        function_params_types = defaultFunctionsParams[node.lex]
+        count_params = countFunctionsParams[node.lex]
 
-            if(len(function_params_types) != len(func_call_node.params)):
-                return self.get_different_params_len()
+        if(len(node.params) < count_params[0] or len(node.params) > count_params[1]):
+            return self.get_different_params_len(), None
 
-            if(_type is not None and _type != function_return_type):
-                return self.get_param_error()
+        for i, param in enumerate(node.params):
+            type_expected = function_params_types[i]
+            error, _type = self.visit(param, variables)
+            if(error is not None):
+                return error, None
+            if(_type not in types_check[type_expected]):
+                return self.get_param_error(), None
+            if(node.lex == "CreateAsset" and param.lex[1:-1] not in self.assets_accepted):
+                return self.get_asset_undefined_error(param.lex), None
 
-            for i, param in enumerate(func_call_node.params):
-                type_expected = function_params_types[i]
-                error = self.check_param(param, type_expected, variables)
-                if(error is not None):
-                    return error
-                if(_type == "asset" and param.lex[1:-1] not in self.assets_accepted):
-                    return self.get_asset_undefined_error(param.lex)
-
-
-        except KeyError:
-            return self.get_function_error(func_call_node.lex)
-
-
-    def check_param(self, param, _type, variables = {}):
-        types_check_array = types_check[_type]
-        param_type = type(param).__name__
-
-        if(param_type == "VariableNode"):
-            try:
-                param = variables[param.lex]
-                param_type = type(param).__name__
-            except KeyError:
-                return self.get_undeclared_error(param.lex)
-
-        if(param_type == "FuncCallNode"):
-            return self.check_func_call(param, _type, variables)
-
-        # check if the param should be a list
-        if(_type.startswith("list")):
-            list_type = _type[5:]
-            if(list_type == "asset" or list_type == "float"):
-                if(param_type not in types_check_array):
-                    return self.get_param_error()
-                if(param_type == "ArrayDeclarationNode"):
-                    param = param.elements
-                if(type(param).__name__ == "FuncCallNode"):
-                    return self.check_func_call(param, "array_float", variables)
-                for elem in param.elements:
-                    error = self.check_param(elem, list_type, variables)
-                    if(error is not None):
-                        return error
-
-            return None
-
-        if(param_type in types_check_array):
-            return None
-        return self.get_param_error()
+        return None, function_return_type
 
     def check_bot(self, node, types, params_expected, variables):
         bot_type = type(node).__name__
         params_type = type(node.params).__name__
-        if(params_type == "VariableNode"):
-            try:
-                params_type = type(variables[node.params.lex])
-            except KeyError:
-                return self.get_undeclared_error(node.params.lex)
-            if(params_type != bot_type):
-                return self.get_assign_error()
-            return None
+
+        if(params_type == "VariableNode" or params_type == "FuncCallNode"):
+            error, _type = self.visit(node.params, variables)
+            if(error):
+                return error, None
+            if(_type != bot_type):
+                return self.get_assign_error(), None
+            variables[node.id] = bot_type
+            return None, bot_type
+
+        if(type(node.params).__name__ != "list"):
+            return self.get_assign_error(), None
 
         if(len(node.params) not in params_expected):
-            return self.get_different_params_len()
+            return self.get_different_params_len(), None
 
         for i, param in enumerate(node.params):
-            error = self.check_param(param, types[i], variables)
+            error, _type = self.visit(param, variables)
             if(error is not None):
-                return error
+                return error, None
+            if(_type not in types_check[types[i]]):
+                return self.get_param_error(), None
 
-        variables[node.id] = node
+        variables[node.id] = bot_type
 
-        return None
+        return None, bot_type
 
-    def check_binary_node(self, node, variables = {}):
+    def check_binary_node(self, node, variables, node_type = "compare"):
         left = node.left
-        left_type = type(left).__name__
-        if(left_type == "VariableNode"):
-            try:
-                left_type = type(variables[left.lex]).__name__
-            except KeyError:
-                return self.get_undeclared_error(left.lex)
-
         right = node.right
-        right_type = type(right).__name__
-        if(right_type == "VariableNode"):
-            try:
-                right_type = type(variables[right.lex]).__name__
-            except KeyError:
-                return self.get_undeclared_error(right.lex)
+
+        error, left_type = self.visit(left, variables)
+        if(error is not None):
+            return error, None
+
+        error, right_type = self.visit(right, variables)
+        if(error is not None):
+            return error, None
 
         if(left_type != right_type):
-            return self.get_compare_error()
+            if(node_type == "Compare"):
+                return self.get_compare_type_error(), None
+            else:
+                return self.get_operation_type_error(), None
 
-        error = self.visit(left, variables)
-        if(error is not None):
-            return error
+        if(node_type == "Compare"):
+            types = ["IntNode", "FloatNode", "DateNode", "StringNode"]
+            if(left_type not in types):
+                return self.get_compare_undefined_error(left_type), None
+            return None, "BoolNode"
 
-        return self.visit(right, variables)
+        types = ["IntNode", "FloatNode"]
+        if(left_type not in types):
+            return self.get_operation_undefined_error(left_type), None
+        return None, left_type
+
 
     @visitor.on('node')
     def visit(self, node, variables = {}):
-        return None
+        return None, None
 
     @visitor.when(ProgramNode)
     def visit(self, node, variables = {}):
         errors = []
         variables = {}
         for i, statement in enumerate(node.statements):
-            error = self.visit(statement, variables)
+            error, _ = self.visit(statement, variables)
             if(error):
-                errors += [(i, error)]
+                errors += [(i + 1, error)]
         return errors
 
     @visitor.when(GridBotDeclarationNode)
     def visit(self, node, variables = {}):
         if(variables.__contains__(node.id)):
-            return self.get_declared_twice_error(node.id)
+            return self.get_declared_twice_error(node.id), None
         types = ["string", "number", "number", "number", "int", "number", "number", "list_asset"]
         return self.check_bot(node, types, [8], variables)
 
     @visitor.when(RebalanceBotDeclarationNode)
     def visit(self, node, variables = {}):
         if(variables.__contains__(node.id)):
-            return self.get_declared_twice_error(node.id)
+            return self.get_declared_twice_error(node.id), None
         types = ["string", "number", "number", "number", "list_asset", "number", "list_float"]
         return self.check_bot(node, types, [5, 6, 7], variables)
 
     @visitor.when(SmartBotDeclarationNode)
     def visit(self, node, variables = {}):
         if(variables.__contains__(node.id)):
-            return self.get_declared_twice_error(node.id)
+            return self.get_declared_twice_error(node.id), None
         types = ["string", "number", "number", "number", "list_asset"]
         return self.check_bot(node, types, [5], variables)
 
     @visitor.when(AssetDeclarationNode)
     def visit(self, node, variables = {}):
         if(variables.__contains__(node.id)):
-            return self.get_declared_twice_error(node.id)
-        new_node = node
+            return self.get_declared_twice_error(node.id), None
+
         if(type(node.asset).__name__ == "VariableNode"):
-            try:
-                new_node = variables[node.asset.lex]
-            except KeyError:
-                return self.get_undeclared_error(node.asset.lex)
+            error, _type = self.visit(node.asset, variables)
+            if(error):
+                return error, None
+            if(_type != "AssetNode"):
+                return self.get_assign_error(), None
 
-        if(type(new_node).__name__ != "AssetDeclarationNode"):
-            return self.get_assign_error()
-        if(type(new_node.asset).__name__ != "FuncCallNode"):
-            return self.get_assign_error()
+            variables[node.id] = "AssetNode"
+            return None, "AssetNode"
 
-        error = self.check_func_call(new_node.asset, "asset", variables)
-        if(error is None):
-            variables[node.id] = new_node
-        return error
+        error, _type = self.visit(node.asset, variables)
+        if(error):
+            return error, None
+        if(_type != "AssetNode"):
+            return self.get_assign_error(), None
+
+        variables[node.id] = "AssetNode"
+
+        return None, "AssetNode"
+
 
     @visitor.when(ArrayDeclarationNode)
     def visit(self, node, variables = {}):
         if(variables.__contains__(node.id)):
-            return self.get_declared_twice_error(node.id)
-        new_node = node
+            return self.get_declared_twice_error(node.id), None
+
         if(type(node.elements).__name__ == "VariableNode"):
-            try:
-                new_node = variables[node.elements.lex]
-            except KeyError:
-                return self.get_undeclared_error(node.elements.lex)
-        if(type(new_node).__name__ not in types_check["array"]):
-            return self.get_assign_error()
+            error, _type = self.visit(node.elements, variables)
+            if(error):
+                return error, None
+            if(re.search("Array", _type) is None):
+                return self.get_assign_error(), None
 
-        error = self.visit(new_node.elements, variables)
+            variables[node.id] = _type
+            return None, _type
+
+        error, _type = self.visit(node.elements, variables)
+
         if(error is not None):
-            return error
+            return error, None
 
-        variables[node.id] = new_node
-        return None
+        if(re.search("Array", _type) is None):
+            return self.get_assign_error(), None
+
+        variables[node.id] = _type
+        return None, _type
+
 
     @visitor.when(ArrayNode)
     def visit(self, node, variables = {}):
+        is_float = True
+        is_asset = True
         for elem in node.elements:
-            error = self.visit(elem, variables)
+            error, _type = self.visit(elem, variables)
             if(error is not None):
-                return error
+                return error, None
+            if(_type != "FloatNode"):
+                is_float = False
+            if(_type != "AssetNode"):
+                is_asset = False
 
-        return None
+        if(is_float is False and is_asset):
+            return None, "AssetArray"
+        if(is_asset is False and is_float):
+            return None, "FloatArray"
+
+        return None, "Array"
+
 
     @visitor.when(VariableNode)
     def visit(self, node, variables = {}):
         if(variables.__contains__(node.lex) == False):
-            return self.get_undeclared_error(node.lex)
+            return self.get_undeclared_error(node.lex), None
 
-        return None
+        return None, variables[node.lex]
 
     @visitor.when(IntDeclarationNode)
     def visit(self, node, variables = {}):
         if(variables.__contains__(node.id)):
-            return self.get_declared_twice_error(node.id)
-        new_node = node
+            return self.get_declared_twice_error(node.id), None
+
         if(type(node.expression).__name__ == "VariableNode"):
-            try:
-                new_node = variables[node.expression.lex]
-            except KeyError:
-                return self.get_undeclared_error(node.expression.lex)
-        if(type(new_node).__name__ not in types_check["int"]):
-            return self.get_assign_error()
-        variables[node.id] = new_node
-        return None
+            error, _type = self.visit(node.expression, variables)
+            if(error):
+                return error, None
+            if(_type != "IntNode"):
+                return self.get_assign_error(), None
+
+            variables[node.id] = "IntNode"
+            return None, "IntNode"
+
+        error, _type = self.visit(node.expression, variables)
+        if(error is not None):
+            return error, None
+        if(_type != "IntNode"):
+            return self.get_assign_error(), None
+
+        variables[node.id] = "IntNode"
+        return None, "IntNode"
 
     @visitor.when(FloatDeclarationNode)
     def visit(self, node, variables = {}):
         if(variables.__contains__(node.id)):
-            return self.get_declared_twice_error(node.id)
-        new_node = node
+            return self.get_declared_twice_error(node.id), None
+
         if(type(node.expression).__name__ == "VariableNode"):
-            try:
-                new_node = variables[node.expression.lex]
-            except KeyError:
-                return self.get_undeclared_error(node.expression.lex)
-        if(type(new_node).__name__ not in types_check["float"]):
-            return self.get_assign_error()
-        variables[node.id] = new_node
-        return None
+            error, _type = self.visit(node.expression, variables)
+            if(error):
+                return error, None
+            if(_type != "FloatNode"):
+                return self.get_assign_error(), None
+
+            variables[node.id] = "FloatNode"
+            return None, "FloatNode"
+
+        error, _type = self.visit(node.expression, variables)
+        if(error is not None):
+            return error, None
+        if(_type != "FloatNode"):
+            return self.get_assign_error(), None
+
+        variables[node.id] = "FloatNode"
+        return None, "FloatNode"
 
     @visitor.when(BoolDeclarationNode)
     def visit(self, node, variables = {}):
         if(variables.__contains__(node.id)):
-            return self.get_declared_twice_error(node.id)
-        new_node = node
+            return self.get_declared_twice_error(node.id), None
+
         if(type(node.boolean).__name__ == "VariableNode"):
-            try:
-                new_node = variables[node.boolean.lex]
-            except KeyError:
-                return self.get_undeclared_error(node.boolean.lex)
-        if(type(new_node).__name__ not in types_check["boolean"]):
-            return self.get_assign_error()
-        variables[node.id] = new_node
-        return None
+            error, _type = self.visit(node.boolean, variables)
+            if(error):
+                return error, None
+            if(_type != "BoolNode"):
+                return self.get_assign_error(), None
+
+            variables[node.id] = "BoolNode"
+            return None, "BoolNode"
+
+        error, _type = self.visit(node.boolean, variables)
+        if(error is not None):
+            return error, None
+        if(_type != "BoolNode"):
+            return self.get_assign_error(), None
+
+        variables[node.id] = "BoolNode"
+        return None, "BoolNode"
+
+
+    @visitor.when(DateDeclarationNode)
+    def visit(self, node, variables):
+        if(variables.__contains__(node.id)):
+            return self.get_declared_twice_error(node.id), None
+
+        if(type(node.date).__name__ == "VariableNode"):
+            error, _type = self.visit(node.date, variables)
+            if(error):
+                return error, None
+            if(_type != "DateNode"):
+                return self.get_assign_error(), None
+
+            variables[node.id] = "DateNode"
+            return None, "DateNode"
+
+        error, _type = self.visit(node.date, variables)
+        if(error is not None):
+            return error, None
+        if(_type != "DateNode"):
+            return self.get_assign_error(), None
+
+        variables[node.id] = "DateNode"
+        return None, "DateNode"
 
     @visitor.when(StringDeclarationNode)
     def visit(self, node, variables = {}):
         if(variables.__contains__(node.id)):
-            return self.get_declared_twice_error(node.id)
-        new_node = node
-        if(type(node.string).__name__ == "VariableNode"):
-            try:
-                new_node = variables[node.string.lex]
-            except KeyError:
-                return self.get_undeclared_error(node.string.lex)
-        if(type(new_node).__name__ not in types_check["string"]):
-            return self.get_assign_error()
-        variables[node.id] = new_node
-        return None
+            return self.get_declared_twice_error(node.id), None
 
-    @visitor.when(DateDeclarationNode)
-    def visit(self, node, variables = {}):
-        if(variables.__contains__(node.id)):
-            return self.get_declared_twice_error(node.id)
-        new_node = node
-        if(type(node.date).__name__ == "VariableNode"):
-            try:
-                new_node = variables[node.date.lex]
-            except KeyError:
-                return self.get_undeclared_error(node.date.lex)
-        if(type(new_node).__name__ not in types_check["date"]):
-            return self.get_assign_error()
-        variables[node.id] = new_node
-        return None
+        if(type(node.string).__name__ == "VariableNode"):
+            error, _type = self.visit(node.string, variables)
+            if(error):
+                return error, None
+            if(_type != "StringNode"):
+                return self.get_assign_error(), None
+
+            variables[node.id] = "StringNode"
+            return None, "StringNode"
+
+        error, _type = self.visit(node.string, variables)
+        if(error is not None):
+            return error, None
+        if(_type != "StringNode"):
+            return self.get_assign_error(), None
+
+        variables[node.id] = "StringNode"
+        return None, "StringNode"
+
 
     @visitor.when(ReAssignNode)
     def visit(self, node, variables = {}):
-        node_type = None
-        new_node = None
-        try:
-            new_node = variables[node.id]
-            node_type = type(new_node).__name__
-        except KeyError:
-            return self.get_undeclared_error(node.id)
+        if(variables.__contains__(node.id) == False):
+            return self.get_undeclared_error(node.id), None
 
-        new_value = node.value
-        value_type = type(new_value).__name__
+        error, _type = self.visit(node.value, variables)
+        if(error is not None):
+            return error, None
+        if(_type != variables[node.id]):
+            return self.get_assign_error(), None
 
-        if(value_type == "VariableNode"):
-            try:
-                new_value = variables[node.value.lex]
-                value_type = type(new_value).__name__
-            except KeyError:
-                return self.get_undeclared_error(node.value.lex)
-
-        if(value_type == "FuncCallNode"):
-            if(node.value.id not in defaultFunctionsReturn.keys()):
-                return self.get_function_error(node.value.id)
-            value_type = defaultFunctionsReturn[node.value.id][:5]
-
-        if(node_type not in map_nodes.keys()):
-            return self.get_assign_error()
-        type_mapped = map_nodes[node_type]
-        if(value_type not in types_check[type_mapped]):
-            return self.get_assign_error()
-        variables[node.id] = new_node
-
-        return None
+        return None, "ReAssignNode"
 
     @visitor.when(FuncCallNode)
     def visit(self, node, variables = {}):
         if(node.lex in defaultFunctionsReturn.keys()):
-            return self.check_func_call(node, None, variables)
-        return self.get_function_error(node.lex)
+            return self.check_func_call(node, variables)
+        return self.get_function_error(node.lex), None
 
     @visitor.when(NegateBooleanNode)
     def visit(self, node, variables = {}):
-        return self.check_param(node.expression, "boolean", variables)
+        error, _type = self.visit(node.expression, variables)
+        if(error is not None):
+            return error, None
+        if(_type != "BoolNode"):
+           self.get_param_error(), None
+        return None, "BoolNode"
+
+
+    @visitor.when(AndNode)
+    def visit(self, node, variables = {}):
+        return self.check_binary_node(node, variables)
+
+    @visitor.when(OrNode)
+    def visit(self, node, variables = {}):
+        return self.check_compare_node(node, variables)
+
+    @visitor.when(ParenthesisNode)
+    def visit(self, node, variables = {}):
+        error, _type = self.visit(node.expression, variables)
+        if(error is not None):
+            return error, None
+        return None, _type
 
     @visitor.when(EqualNode)
     def visit(self, node, variables = {}):
-        return self.check_binary_node(node, variables)
+        return self.check_compare_node(node, variables)
 
     @visitor.when(GreatEqNode)
     def visit(self, node, variables = {}):
-        return self.check_binary_node(node, variables)
+        return self.check_compare_node(node, variables)
 
     @visitor.when(LessEqNode)
     def visit(self, node, variables = {}):
-        return self.check_binary_node(node, variables)
+        return self.check_compare_node(node, variables)
 
     @visitor.when(GreatNode)
     def visit(self, node, variables = {}):
-        return self.check_binary_node(node, variables)
+        return self.check_compare_node(node, variables)
 
     @visitor.when(LessNode)
     def visit(self, node, variables = {}):
-        return self.check_binary_node(node, variables)
+        return self.check_compare_node(node, variables)
 
     @visitor.when(PrintNode)
     def visit(self, node, variables = {}):
-        new_node = node
-        if(type(node.elem).__name__ == "VariableNode"):
-            try:
-                new_node = variables[node.elem.lex]
-            except KeyError:
-                return self.get_undeclared_error(node.elem.lex)
+        error, _ = self.visit(node.elem, variables)
+        if(error is not None):
+            return error, None
+        return None, None
 
     @visitor.when(PlusNode)
     def visit(self, node, variables = {}):
-        return self.check_binary_node(node, variables)
+        return self.check_binary_node(node, variables, "Operation")
 
     @visitor.when(MinusNode)
     def visit(self, node, variables = {}):
-        return self.check_binary_node(node, variables)
+        return self.check_binary_node(node, variables, "Operation")
 
     @visitor.when(MulNode)
     def visit(self, node, variables = {}):
-        return self.check_binary_node(node, variables)
+        return self.check_binary_node(node, variables, "Operation")
 
     @visitor.when(DivNode)
     def visit(self, node, variables = {}):
-        return self.check_binary_node(node, variables)
+        return self.check_binary_node(node, variables, "Operation")
+
+    @visitor.when(IntNode)
+    def visit(self, node, variables = {}):
+        return None, "IntNode"
+
+    @visitor.when(FloatNode)
+    def visit(self, node, variables = {}):
+        return None, "FloatNode"
+
+    @visitor.when(BoolNode)
+    def visit(self, node, variables = {}):
+        return None, "BoolNode"
+
+    @visitor.when(DateNode)
+    def visit(self, node, variables = {}):
+        try:
+            datetime.strptime(node.lex, "%Y-%m-%d")
+            return None, "DateNode"
+        except ValueError:
+            return "Formato de fecha incorrecto", "None"
+
+    @visitor.when(StringNode)
+    def visit(self, node, variables = {}):
+        return None, "StringNode"
+

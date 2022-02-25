@@ -1,0 +1,9 @@
+asset a = CreateAsset("ETH-USD.csv");
+asset b = CreateAsset("BTC-USD.csv");
+asset c = CreateAsset("ADA-USD.csv");
+
+
+asset a = CreateAsset("ADA-USD.csv");
+asset b = CreateAsset("btc-usd_2021-01-01_2021-03-31.csv");
+asset c = CreateAsset("eth-usd_2021-01-01_2021-03-31.csv");
+

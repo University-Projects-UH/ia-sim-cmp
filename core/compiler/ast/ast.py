@@ -50,6 +50,7 @@ class GridBotDeclarationNode(BotDeclaration):
         super().__init__(id, params)
 
 
+
 class RebalanceBotDeclarationNode(BotDeclaration):
 
     def __init__(self, id, params):
@@ -97,7 +98,7 @@ class BoolDeclarationNode(StatementNode):
 class DateDeclarationNode(StatementNode):
 
     def __init__(self, id, date):
-        
+
         self.id = id
         self.date = date
 

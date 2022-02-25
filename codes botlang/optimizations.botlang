@@ -1,0 +1,8 @@
+asset a = CreateAsset("ADA-USD.csv");
+asset b = CreateAsset("btc-usd_2021-01-01_2021-03-31.csv");
+asset c = CreateAsset("eth-usd_2021-01-01_2021-03-31.csv");
+asset d = CreateAsset("MSFT.csv");
+asset e = CreateAsset("NFLX.csv");
+
+grid_bot karel = GridBotOpt([b], 1000);
+rebalance_bot fg = RebalanceBotOpt([b, c]);

@@ -30,3 +30,7 @@ from .compiler.bots_grammar import BotGrammar
 # portfolio
 from .portfolio.portfolio_sd_min import PortfolioSdMin
 from .portfolio.portfolio_sharpe_ratio import PortfolioSharpeRatio
+
+# simulation
+from .simulation.rebalance_bot_optimization import RebalanceBotOpt
+from .simulation.grid_bot_optimization import grid_bot_optimization

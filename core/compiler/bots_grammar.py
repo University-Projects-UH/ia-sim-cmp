@@ -13,7 +13,7 @@ class BotGrammar:
 
     def __init__(self):
         self.grammar = self.build_grammar()
-        
+
 
     def build_grammar(self):
 
@@ -25,7 +25,7 @@ class BotGrammar:
 
 
         ###############################################
-        #                   NON TERMINALS   
+        #                   NON TERMINALS
         ###############################################
 
         program = G.add_non_terminal('<program>', True) # initial non terminal
@@ -120,9 +120,11 @@ class BotGrammar:
 
         grid_bot_declaration %= grid_bot + ID + assign + grid_bot + opar + elem_list + cpar, lambda h, s: GridBotDeclarationNode(s[2], s[6])
         grid_bot_declaration %= grid_bot + ID + assign + ID, lambda h, s: GridBotDeclarationNode(s[2], VariableNode(s[4]))
+        grid_bot_declaration %= grid_bot + ID + assign + func_call, lambda h, s: GridBotDeclarationNode(s[2], s[4])
 
         rebalance_bot_declaration %= rebalance_bot + ID + assign + rebalance_bot + opar + elem_list + cpar, lambda h, s: RebalanceBotDeclarationNode(s[2], s[6])
         rebalance_bot_declaration %= rebalance_bot + ID + assign + ID, lambda h, s: RebalanceBotDeclarationNode(s[2], VariableNode(s[4]))
+        rebalance_bot_declaration %= rebalance_bot + ID + assign + func_call, lambda h, s: RebalanceBotDeclarationNode(s[2], s[4])
 
         smart_bot_declaration %= smart_bot + ID + assign + smart_bot + opar + elem_list + cpar, lambda h, s: SmartBotDeclarationNode(s[2], s[6])
         smart_bot_declaration %= smart_bot + ID + assign + ID, lambda h, s: SmartBotDeclarationNode(s[2], VariableNode(s[4]))
@@ -136,7 +138,7 @@ class BotGrammar:
 
         bool_declaration %= boolt + ID + assign + bool_or_expression, lambda h, s: BoolDeclarationNode(s[2], s[4])
 
-        date_declaration %= datet + ID + assign + arithmetic_expression, lambda h, s: DateDeclarationNode(s[2], s[4]) 
+        date_declaration %= datet + ID + assign + arithmetic_expression, lambda h, s: DateDeclarationNode(s[2], s[4])
 
         array_declaration %= arrayt + ID + assign + array, lambda h, s: ArrayDeclarationNode(s[2], s[4])
         array_declaration %= arrayt + ID + assign + func_call, lambda h, s: ArrayDeclarationNode(s[2], s[4])
